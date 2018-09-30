@@ -1,6 +1,6 @@
 # My Programming Notes
 
-Alt-Status
+
 
 
 ### 9-29-2018:
@@ -10,6 +10,7 @@ Upcoming task:
 
 * Create folders in this repo to store support files.
 * Clean-up existing code which is captured in several programs.
+* Run the several programs to see where I left off prior to making changes.
 
 
 Some links:
