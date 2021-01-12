@@ -26,12 +26,25 @@ from collections import deque
 
 import pprint
 
+import stockstats
+from stockstats import StockDataFrame as Sdf
+
 
 register_matplotlib_converters()
 # sns.set_style('darkgrid')
 
 plt.rc('figure',figsize=(16,12))
 plt.rc('font',size=13)
+
+# %%
+
+NUM_SHARES=100
+MOVING_AVG_PERIOD=20
+MACD_DIFFERENCE=1
+sigma_price_diff=3
+START_DATE='2020-10'
+END_DATE='2021'
+feature='Close'   
 
 # %%
 # Create program working folder and its subfolders
@@ -182,7 +195,7 @@ class DataPlot():
         # if self.show:
         #     plt.show()
         
-    def rolling_window(self,col,period=1):
+    def rolling_window(self,col,period=MOVING_AVG_PERIOD):
         fig, ax = plt.subplots(nrows=1,ncols=1,sharex=False,figsize=(10, 6))
         fig.suptitle(f'Rolling Window: {col.upper()}-{stock_name}', fontsize=16)
         ax.set_title(f'{col}')
@@ -196,6 +209,10 @@ class DataPlot():
         ax=plus_2sigma.plot(label=f'{col} {period} +2 sigma',color='red',alpha=0.2)
         ax=plt.fill_between(self.df[col].index,plus_2sigma,minus_2sigma,alpha=0.2)
         print(f'sigma:{minus_2sigma}')
+
+        mu_10=self.df[col].rolling(10,center=False).mean() #---> 10 period moving avg
+        ax=mu_10.plot(label=f'{col} 10 Moving Avg')
+
         plt.legend()
         plt.grid()
         
@@ -203,7 +220,8 @@ class DataPlot():
         #     plt.show()
 
         self.macd(col)
-        self.two_sigma_delta(col,minus_2sigma=minus_2sigma,plus_2sigma=plus_2sigma)
+        self.two_sigma_delta(col,minus_2sigma=minus_2sigma,plus_2sigma=plus_2sigma,mavg=mu)
+        self.rsi()
 
     def hist_plot(self,col):
         fig, ax = plt.subplots(nrows=2,ncols=1,sharex=False,figsize=(10, 6))
@@ -225,12 +243,16 @@ class DataPlot():
 
         exp1 = self.df[col].ewm(span=12, adjust=False).mean()
         exp2 = self.df[col].ewm(span=26, adjust=False).mean()
-        macd = exp1-exp2
-        exp3 = macd.ewm(span=9, adjust=False).mean()
+        macd = self.macd = exp1-exp2
+        exp3 = self.exp3=macd.ewm(span=9, adjust=False).mean()   # ---> signal
 
         ax[0].set_title(f'{col}')
         ax[0].plot(macd.index,macd,label='MACD', color = '#4C0099',marker='o')
         ax[0].plot(exp3.index,exp3,label='Signal Line', color='#FF9933')
+        ax[0].axhline(0,color='black',linestyle='--')
+        ax[0].fill_between(macd.index, macd,exp3, where=(macd > exp3), facecolor='green', alpha=0.5)
+        ax[0].fill_between(macd.index, macd,exp3, where=(macd < exp3), facecolor='red', alpha=0.5)
+
         ax[0].grid()
         ax[0].legend()
 
@@ -329,42 +351,60 @@ class DataPlot():
         stock_sell=[]
         q = deque()
         
+        trade_in_progress=0
+        verify=0
+
         assume_above_signal=True
         for c,k in enumerate(diff[feature]):
             q.append(k)
             if len(q)==2:
                 down=all([q[0]>0,q[1]<0])
                 up=all([q[0]<0,q[1]>0])
-                if assume_above_signal:
-                    below_signal_check=all([q[0]<0,q[1]<0])  # two negative macd diff.
+                if assume_above_signal: #-->latching feature to get macd started from down looking up.
+                    below_signal_check=all([q[0]<0,q[1]<0])  #-->two negative macd diff to ensure starting with macd below signal.
                     if not below_signal_check:
                         q.popleft()
                         continue
                     else:
                         assume_above_signal=False
-                if up==True:
+
+                if up==True and trade_in_progress==0:
                     trigger_date=diff.index[c]
                     trigger_price=self.df[feature][trigger_date]
                     print(f'{q}---->{trigger_date}--->{trigger_price}')
                     print('up')
                     start_list.append(trigger_date)
                     stock_buy.append(trigger_price)
+                    trade_in_progress=1
                     q.popleft()
                     continue
                 
-                elif (down==True):
-                    exit_date=diff.index[c]
-                    exit_price=self.df[feature][exit_date]
-                    print(f'{q}---->{exit_date}--->{exit_price}')
-                    print('get out')
-                    stop_list.append(exit_date)
-                    stock_sell.append(exit_price)
+                # elif (down==True and (self.macd[c+1]<self.exp3[c+1]) and trade_in_progress==1):
+                elif (trade_in_progress==1):
+                    # print(f'index check:{self.macd[c+1]}--->{self.exp3[c+1]}--->{diff.index[c]}')
+                    
+                    if verify==0:
+                        if down==True:
+                            verify=1
+                    if verify==1:
+                        if (self.macd[c+1]<self.exp3[c+1]):
+                            trade_in_progress=0
+                            verify=0
+
+                            exit_date=diff.index[c]
+                            exit_price=self.df[feature][exit_date]
+                            print(f'{q}---->{exit_date}--->{exit_price}')
+                            print('get out')
+                            stop_list.append(exit_date)
+                            stock_sell.append(exit_price)
+                    
                     q.popleft()
                     continue
                 else:
                     # print(q)
                     q.popleft()
                     continue
+
         print(f'diff---->{diff.head()}')
         inversion_in_trigger=[a.date().strftime("%Y-%m-%d") for a in start_list]
         inversion_out_trigger=[a.date().strftime("%Y-%m-%d") for a in stop_list]
@@ -404,31 +444,71 @@ class DataPlot():
 
         print(f'size of start:{len(start_list)}\nsize of stop:{len(stop_list)}')
 
-    def two_sigma_delta(self,col,minus_2sigma,plus_2sigma):
+    def two_sigma_delta(self,col,minus_2sigma,plus_2sigma,mavg):
         fig, ax = plt.subplots(nrows=1,ncols=1,sharex=True,figsize=(10, 6))
         fig.suptitle(f'2-Sigma Width: {col.upper()}-{stock_name}\nDiff({sigma_price_diff})', fontsize=16)
 
         color=['red' if i<0 else 'green' for i in self.df[col].diff(sigma_price_diff)]
         color[0]='black'
 
-        # print(f'color:{color}\nlen of color:{len(color)}\nlen of width:{len(plus_2sigma)}')
+        
+        # width=plus_2sigma-minus_2sigma
+        width=((plus_2sigma-minus_2sigma)/mavg)*100
 
-        width=plus_2sigma-minus_2sigma
         ax.set_title(f'{col}')
         # ax.plot(width.index,width,label='2-Sigma Width', color ='blue' ,marker='o',markerfacecolor=color)  # --->original color: '#4C0099'
         ax.bar(width.index,width,label='2-Sigma Width', color =color)
+        ax.set_ylim([0,100])
         ax.grid()
 
-    def rsi(self,col):
-        pass
+    def rsi(self):
+        """Compute and plot the RSI using the stockstats library. """
+        
+        rsi_indicator=['close','rsi_6','rsi_14']
+        a=self.rsi_data=stock_indicators(df=self.df,indicators=rsi_indicator)
+        print(a.head())
+
+        fig, ax = plt.subplots(nrows=3,ncols=1,sharex=True,figsize=(10, 6))
+        fig.suptitle(f'RSI: {feature.upper()}-{stock_name}', fontsize=16)
+
+        ax[0].set_title(f'{feature}')
+        ax[0].plot(a.index,a[feature.lower()],label='Close', color = '#4C0099',marker='o')
+        ax[0].grid()
+        ax[0].legend()
+
+        # ax[1].set_title(f'{feature}')
+        ax[1].plot(a.index,a[rsi_indicator[1]],label=rsi_indicator[1], color = '#4C0099',marker='o')
+        ax[1].axhline(80,color='black',linestyle='--')
+        ax[1].axhline(30,color='black',linestyle='--')
+        ax[1].fill_between(a.index, a[rsi_indicator[1]],80, where=(a[rsi_indicator[1]] > 80), facecolor='red', alpha=0.5)
+        ax[1].fill_between(a.index, a[rsi_indicator[1]],30, where=(a[rsi_indicator[1]] < 30), facecolor='red', alpha=0.5)
+        ax[1].set_ylim([0,100])
+        ax[1].grid()
+        ax[1].legend()
+
+        # ax[1].set_title(f'{feature}')
+        ax[2].plot(a.index,a[rsi_indicator[2]],label=rsi_indicator[2], color = '#4C0099',marker='o')
+        ax[2].axhline(80,color='black',linestyle='--')
+        ax[2].axhline(30,color='black',linestyle='--')
+        ax[2].fill_between(a.index, a[rsi_indicator[2]],80, where=(a[rsi_indicator[2]] > 80), facecolor='red', alpha=0.5)
+        ax[2].fill_between(a.index, a[rsi_indicator[2]],30, where=(a[rsi_indicator[2]] < 30), facecolor='red', alpha=0.5)
+        ax[2].set_ylim([0,100])
+        ax[2].grid()
+        ax[2].legend()
+
+
+        return self.rsi_data
+        
+
 
 class TSAnalysis():
     """TS Analysis"""
 
     def __init__(self,df):
         self.df=df
+        self.decompose()
 
-    def decompose (self,col):
+    def decompose (self,col=feature):
         # decomposition = sm.tsa.seasonal_decompose(pd.DataFrame(self.df[col]), model='Additive')
         # fig = decomposition.plot()
         a=self.df[col]
@@ -446,6 +526,19 @@ class TSAnalysis():
 
 
 # %%
+
+def stock_indicators(df,indicators):
+    """ Stock indicators generated by the stockStat libray"""
+
+    s=Sdf.retype(stock.df)
+    # s[indicators].plot(subplots=True,figsize=(10,6), grid=True)
+
+    # print(s.head())
+    # print(s[indicators].dropna())
+
+    return s[indicators].dropna()
+
+
 
 
 ## FUNCTIONS----------------------------------FUNCTIONS----------------------------------FUNCTIONS
@@ -483,41 +576,49 @@ loss=lambda  x:sum([i for i in x if i <0])
 
 ## MAIN----------------------------------MAIN----------------------------------MAIN
 # %%
-NUM_SHARES=100
-MACD_DIFFERENCE=1
-sigma_price_diff=1
 
-data_source='from Web'  # options--> 'from Web' --- 'on PC'
+if __name__ == '__main__':
+    
 
-stock_list=['ASX','ABUS','CBWTF']
-position_list=['AEHR','APHA','KSHB']
+    data_source='from Web'  # options--> 'from Web' --- 'on PC'
 
-if data_source=='on PC':
-    data="BDR.csv"   #"TSLA.csv" #"APHA.csv" #"KSHB.csv" #"CBWTF.csv" 
-    data_file=f'c:/my_python_programs/{client}/{data}'
-    stock_name=symbol=data.split('.')[0]
-    stock=DataPlot(RawData(data_file,'Date').df)
-elif (data_source=='from Web'):
-    symbol = 'APHA'.upper() #'ALOT'  
-    stock_name=symbol
-    stock =DataPlot(pdr.get_data_yahoo(symbol)['2019':'2021'])
+    stock_list=['ASX','ABUS','CBWTF']
 
-feature='Close'          #'Adj Close'
+    position_list=['AEHR','APHA','KSHB','ADXS','CBWTF']
 
-send_results_to_file({'NUM_SHARES':NUM_SHARES,'Ticker':symbol},'w')
+    my_stocks={
+        'Cannibus':['APHA','KSHB','CBWTF'],
+        'Drones':['NVDA','AMBA','AVAV'],
+        'Energy':['PBD','FAN'],
+        'Healthcare':['ADMS']
+    }
+
+    if data_source=='on PC':
+        data="BDR.csv"   
+        data_file=f'c:/my_python_programs/{client}/{data}'
+        stock_name=symbol=data.split('.')[0]
+        stock=DataPlot(RawData(data_file,'Date').df)
+    elif (data_source=='from Web'):
+        symbol = 'tsla'.upper() #'ALOT'  
+        stock_name=symbol
+        stock =DataPlot(pdr.get_data_yahoo(symbol)[START_DATE:END_DATE])
+
+    send_results_to_file({'NUM_SHARES':NUM_SHARES,'Ticker':symbol},'w')
+
+    # %%
+    stock.rolling_window(feature,MOVING_AVG_PERIOD)
+
+    # stock.rsi(feature)
+
+    # rsi_indicator=['close','rsi_6','rsi_14']
+    # stock_indicators(stock.df,rsi_indicator)
+
+
+
 
 # %%
-stock
+    # stock_tsa=TSAnalysis(stock.df)
 
-
-# stock.plot1()
-
-
-# %%
-stock.rolling_window(feature,20)
-
-# stock.diff_plot('Volume')
-
-plt.show()
+    plt.show()
 
 # %%
