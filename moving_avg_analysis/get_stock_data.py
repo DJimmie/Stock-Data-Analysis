@@ -45,7 +45,7 @@ NUM_SHARES=100
 MOVING_AVG_PERIOD=20
 MACD_DIFFERENCE=1
 sigma_price_diff=3
-START_DATE='2016'
+START_DATE='2020-10'
 END_DATE='2021'
 feature='Close'   
 
@@ -649,6 +649,7 @@ def collect_data(trade_data,strategy):
 def trade_data_analysis(tradeData,strategy):
 
     x="VOL_DELTA"
+    return
 
     fig, ax = plt.subplots(nrows=1,ncols=1,sharex=False,figsize=(10, 6))
     fig.suptitle(f'Histogram Plot: {strategy}', fontsize=16)
@@ -753,7 +754,7 @@ if __name__ == '__main__':
         stock_name=symbol=data.split('.')[0]
         stock=DataPlot(RawData(data_file,'Date').df)
     elif (data_source=='from Web'):
-        symbol = 'kshb'.upper() #'ALOT'  
+        symbol = 'oln'.upper() #'ALOT'  
         stock_name=symbol
         stock =DataPlot(pdr.get_data_yahoo(symbol)[START_DATE:END_DATE])
 
