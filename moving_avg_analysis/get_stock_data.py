@@ -754,7 +754,7 @@ if __name__ == '__main__':
         stock_name=symbol=data.split('.')[0]
         stock=DataPlot(RawData(data_file,'Date').df)
     elif (data_source=='from Web'):
-        symbol = 'oln'.upper() #'ALOT'  
+        symbol = 'ADXS'.upper() #'ALOT'  
         stock_name=symbol
         stock =DataPlot(pdr.get_data_yahoo(symbol)[START_DATE:END_DATE])
 

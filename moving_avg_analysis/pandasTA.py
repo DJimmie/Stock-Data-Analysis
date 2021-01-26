@@ -40,10 +40,20 @@ macd_Xover_df=pd.DataFrame(columns=['start','stop','PL','macd','macd_H','outcome
 # %%
 
 def get_the_stock(ticker):
+
     symbol = ticker.upper() 
     stock_name=symbol
     stock =pdr.get_data_yahoo(symbol)[START_DATE:END_DATE]
     return stock
+
+def dispatch():
+    """ dispatch the stock_dict to the specifed backtest strategy"""
+
+    for k,v in stock_dict.items():
+        print(k)
+
+    
+
 
 def macd_Xover(df):
         """Capture data from MACD crossover. 
@@ -152,9 +162,7 @@ def macd_Xover(df):
 
         send_results_to_file({'DATASET FOR MACD CROOSVER---->':macd_Xover_df},'a')
 
-        
-
-        
+               
 def send_results_to_file(data,file_action='a'):
 
     output_s = pprint.pformat(data)
@@ -239,21 +247,35 @@ loss=lambda  x:sum([i for i in x if i <0])
 
 # %%
 
-if __name__ == '__main__':
+def the_stock_list(tickers):
+    """
+    Input---> list of stocks
+    Output ---> dictionary with ticker symbol keys and the retrieved dataframe as values
+    """
 
-    send_results_to_file({'TRADE DATA REPORT':'------------>'},'w')
-    ticker=['AEHR','APHA','KSHB','ADXS','CBWTF']
-    ticker=['AEHR','APHA','KSHB','ADXS','CBWTF','SNDL','TSLA','GE','SENS','AT','DBVT']
-    # ticker=['cron']
+    global stock_dict
+    stock_dict=dict()
+    
     date='2021-01-15'
     for i in ticker:
         send_results_to_file({'TRADE DATA FOR------>':i.upper()},'a')
         df=get_the_stock(i)
+        stock_dict[i]=df
 
-        macd_Xover(df)
+    dispatch()
 
-    macd_crossover_pkg={'df':macd_Xover_df,'features':['macd','macd_H','rsi14','outcome']}
-    tradeDataAnalysis(macd_crossover_pkg)
+if __name__ == '__main__':
+
+    send_results_to_file({'TRADE DATA REPORT':'------------>'},'w')
+    ticker=['AEHR','APHA']
+    stock_data=the_stock_list(ticker)
+    print(stock_dict)
+    
+
+    # macd_Xover(df)
+
+    # macd_crossover_pkg={'df':macd_Xover_df,'features':['macd','macd_H','rsi14','outcome']}
+    # tradeDataAnalysis(macd_crossover_pkg)
 
         
 # %%
