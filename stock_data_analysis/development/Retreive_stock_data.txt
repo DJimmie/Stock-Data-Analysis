@@ -1,0 +1,34 @@
+@startuml
+|the_stock_list()|
+start
+fork
+#lightgrey:<i>Input list\n **ticker** ]
+fork again
+#lightgrey:<i>initialize dict\n <b>**stock_dict=dict()**]
+end fork
+repeat :for i in ticker;
+  :df=get_the(stock(i);
+
+|get_the_stock()|
+:Input: i;
+:symbol = ticker.upper()]
+:stock =pdr.get_data_yahoo(symbol)[START_DATE:END_DATE]
+#lightgrey:<i>return\n<<dataframe>>\n <b>stock]
+
+|the_stock_list()|
+#lightgrey:<<dataframe>>\n<b>df]
+:<i>build stock_dict\n<b>stock_dict[i]=df;
+repeat while (next I?) is (yes)
+
+
+:dispatch(**stock_dict**);
+
+
+|dispatch()|
+repeat:for k,v in stock_dict.items;
+:<i>call\ntrading_strategy(v);
+repeat while (next k,v?) is (yes)
+stop
+
+
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+
+|macd_Xover(df)|
+
+'start
+(B)
+
+fork
+#lightgrey:<i>Assign Global\n<<dataframe>>\n **macd_Xover_df** ]
+fork again
+#lightgrey:<i>make indicator dataframes\n<<dataframe>>\n <b>**df.ta.macd(append=True)**]
+note left 
+<i>MACD data appended
+to **df** via <b>pandas_ta API
+end note
+:drop N/A rows\n**df.dropna(inplace=True)**;
+
+
+fork again
+#lightgrey:<i>initialize List\n<<List>>\n**start_list=[]**\n**stop_list=[]**\n**stock_buy=[]**\n**stock_sell=[]** ]
+fork again
+#lightgrey:trade status default\n**status=False**]
+
+end fork
+
+
+repeat :for index, row in df.iterrows;
+
+  #pink:if (status=False?) then (yes)
+partition <b>In-Trade {
+	if (row['MACD_12_26_9']>row['MACDs_12_26_9']?) then (yes)
+
+		:start=index]
+floating note left: <i>Trade start date captured
+		:append list\n*start_list append(start)\n*stock_buy.append(df.loc[start]["close"]);
+	:status=True;
+
+
+endif
+}
+endif
+
+#cyan:if (status=True?) then (yes)
+partition <b>Exit-Trade {
+	if (row['MACD_12_26_9']<=row['MACDs_12_26_9']?) then (yes)
+		:stop=index]
+		:append list\n*stop_list append(stop)\n*stock_sell.append(df.loc[stop]["close"]);
+	:status=False;
+endif
+}
+endif
+repeat while (next index,row?) is (yes)
+
+
+#lightgrey:<i>List with collected data\n<<List>>\n**start_list**\n**stop_list**\n**stock_buy**\n**stock_sell** ]
+
+:process data(List with collected data);
+
+
+
+|process_data|
+
+(c)
+floating note right: process_data function on Sheet C
+
+@enduml

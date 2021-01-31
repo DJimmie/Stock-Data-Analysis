@@ -1,0 +1,26 @@
+@startuml
+
+|process_data|
+
+(C)
+
+fork
+:<i>Get profit/loss for each trade\n**PL=[a - b for a, b in zip(stock_sell, stock_buy)**;
+:<i>Multiply x number of shares and round to 2 decimal places\n**PL=[round(i*NUM_SHARES,2) for i in PL]**;
+:**net_PL**=sum(PL);
+
+fork again
+:<i>dates formatted to datestamp\n**start_list=[a.date().strftime("%Y-%m-%d") for a in start_list]**;
+
+end fork
+
+if (**len(start_list)>len(PL)**?) then (yes)
+:start_list.pop();
+endif
+
+:Build **macd_Xover_data** dict;
+:convert **macd_Xover_data** dict to dataframe\n**a=pd.DataFrame.from_dict(macd_Xover_data)**;
+:append dataframe to the main dataframe\n** macd_Xover_df=macd_Xover_df.append(a,ignore_index=True)**;
+
+stop
+@enduml

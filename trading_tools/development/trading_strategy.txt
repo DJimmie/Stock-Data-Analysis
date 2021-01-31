@@ -1,0 +1,38 @@
+@startmindmap
+title TRADING STRATEGIES---->LONG\n31 Jan 2021
+
+*[#cyan] <&star>**TRADING**\n**STRATEGIES**\n**(STOCKS)**
+
+++[#lightgreen] **Entry Signals**
++++ MACD
+++++_ **MACD** crosses above **Signal**
+++++_ **MACD** > 0
+
++++ RSI
+++++_ **RSI**>50
++++ MA
+++++_ **5 SMA** above the **50 SMA**
+++++_ **50 SMA** above the **180 SMA**
++++++_ signifies and overall uptrend
+
++++ CANDLES\n(Price Action)
+++++_ **Candle** closed above the **5 SMA**
+
+
+--[#pink] **Exit Signals**
+---[#red] MACD
+----_ **MACD** crosses below **Signal**
+---[#red] RSI
+----_ TBD
+---[#red] MA
+----_ **5 SMA** crosses below the **50 SMA**
+----_ **50 SMA** crosses below the **180 SMA**
+-----_ may signify start\nof overall downtrend
+
+
+
+
+
+
+
+@endmindm
