@@ -1,0 +1,13 @@
+@startuml
+'left to right direction
+skinparam actorStyle awesome
+:User: --> (Provide list of stocks)
+
+package TradeTracker {
+(Provide list of stocks) --> (retreive stock data)
+(retreive stock data) --> (generate indicators)
+(generate indicators) --> (display trade enthusiasm score)
+}
+
+
+@enduml

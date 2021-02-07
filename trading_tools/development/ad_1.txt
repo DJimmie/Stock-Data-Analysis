@@ -1,0 +1,33 @@
+@startuml
+
+
+|Trader|
+start
+:Select Stocks;
+
+
+|#LightSkyBlue|TradeTracker| 
+:Input Stocks;
+:Retrieve OHLC data;
+:generate stock indicators;
+
+fork
+:MACD;
+fork again
+:RSI14;
+fork again
+:MA5;
+fork again
+:MA50;
+fork again
+:MA180;
+
+end fork
+
+:check criteria;
+:generate score;
+
+stop
+
+
+@enduml
