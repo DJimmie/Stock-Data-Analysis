@@ -23,9 +23,11 @@ fork again
 fork again
 :MA180;
 end fork
+#LightGrey:indictors_dict]
 
 |trade criteria|
 :check criteria;
+#LightGrey:trade_status_line]
 
 |enthusiasm|
 :generate score;

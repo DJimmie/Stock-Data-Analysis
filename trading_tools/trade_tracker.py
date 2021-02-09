@@ -22,7 +22,9 @@ from collections import deque
 
 import pprint
 
+import datetime as dt
 
+CURRENT_DATE=dt.date.today().strftime("%Y-%m-%d")
 
 def user_inputs():
     """User specifies list of stocks to review and score. User also inputs the date range and the interval of the stock data.
@@ -32,12 +34,14 @@ def user_inputs():
     'Cannibus':['APHA','KSHB','CBWTF','CRON','sndl','cgc','ammj'],
     'Drones':['NVDA','AMBA','AVAV'],
     'Energy':['PBD','FAN'],
-    'Healthcare':['ADMS','cern','kern','cslt','nspr','ontx']
+    'Healthcare':['ADMS','cern','kern','cslt','nspr','ontx'],
+    'my_positions':['apha','sndl','ammj','cron'],
+    'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc']
     }
 
 
     inputs={
-        'stock_list':my_stocks['Healthcare'],
+        'stock_list':my_stocks['my_positions'],
         'start_date':'2020',
         'stop_date':'2021'}
     
@@ -74,9 +78,12 @@ def GenerateIndicators(df):
 
     print(df.head())
 
-    print(df.loc['2021-02-05'])
+    send_results_to_file({'Ticker':symbol,'dataset':df.tail()},'a')
 
-    indicator_dict=df.loc['2021-02-05'].to_dict()
+
+    print(df.loc[CURRENT_DATE])
+
+    indicator_dict=df.loc[CURRENT_DATE].to_dict()
 
     print(indicator_dict)
 
