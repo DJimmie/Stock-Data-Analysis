@@ -31,11 +31,11 @@ def user_inputs():
     Inputs are stored in a dictionary."""
     
     my_stocks={
-    'Cannibus':['APHA','KSHB','CBWTF','CRON','sndl','cgc','ammj'],
+    'Cannibus':['APHA','KSHB','CBWTF','CRON','sndl','cgc','ammj','kern'],
     'Drones':['NVDA','AMBA','AVAV'],
     'Energy':['PBD','FAN'],
     'Healthcare':['ADMS','cern','kern','cslt','nspr','ontx'],
-    'my_positions':['apha','sndl','ammj','cron'],
+    'my_positions':['imgn','kern','ammj','apha','sndl','spy'],
     'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc']
     }
 
@@ -65,16 +65,13 @@ def retrieve_OHLC_data(inputs):
         GenerateIndicators(stock_dict[i])
 
 
+
+
 def GenerateIndicators(df):
     """generate the stock indictors for the stock OHLCV data"""
 
-    # make a dataframe
-    df.ta.macd(append=True)
-    df.ta.rsi(append=True)
-    df.ta.sma(length=5,append=True)
-    df.ta.sma(length=50,append=True)
-    df.ta.sma(length=180,append=True)
-    df.dropna(inplace=True)
+    # df=trade_criteria_1_dataset(df)
+    df=trade_criteria_2_dataset(df)
 
     print(df.head())
 
@@ -89,10 +86,22 @@ def GenerateIndicators(df):
 
     send_results_to_file({'Ticker':symbol,'Results':indicator_dict},'a')
 
-    trade_criteria(indicator_dict)
+    trade_criteria_1(indicator_dict)
 
 
-def trade_criteria(indicator_dict):
+def trade_criteria_1_dataset(df):
+
+    # make a dataframe
+    df.ta.macd(append=True)
+    df.ta.rsi(append=True)
+    df.ta.sma(length=5,append=True)
+    df.ta.sma(length=50,append=True)
+    df.ta.sma(length=180,append=True)
+    df.dropna(inplace=True)
+
+    return df
+
+def trade_criteria_1(indicator_dict):
     """Run indictors thru the trade criteria"""
 
     # MACD above MACDs
@@ -136,6 +145,23 @@ def trade_criteria(indicator_dict):
 
     enthusiasm_score(trade_status_line)
 
+def trade_criteria_2_dataset(df):
+
+    # make a dataframe
+    df.ta.macd(append=True)
+    df.ta.rsi(append=True)
+    df.ta.sma(length=5,append=True)
+    df.ta.sma(length=50,append=True)
+    df.ta.sma(length=180,append=True)
+
+    df['dif_M50M180']=df['SMA_50']-df['SMA_180' ]
+    df['ratio_M50M180'] = df['dif_M50M180'].div(df['dif_M50M180'].shift(1))
+
+    df['ratio_MACDh_12_26_9'] = df['MACDh_12_26_9'].div(df['MACDh_12_26_9'].shift(1))
+
+    df.dropna(inplace=True)
+
+    return df
 
 def enthusiasm_score(trade_status_line):
     """Calculating a trade enthusiasm score per the criteria result in the trade_status_line"""
