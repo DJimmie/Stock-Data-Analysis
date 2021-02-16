@@ -1,0 +1,64 @@
+@startmindmap
+title TRADING STRATEGIES---->LONG\n13 Feb 2021
+
+*[#cyan] <&star>**TRADING**\n**STRATEGIES**\n**(LONG)**
+
+++ **LONG 1**
++++[#lightgreen] **Entry Criteria**
+++++ MACD
++++++_ **MACD** > **Signal**
++++++_ **MACD** > 0
+
+++++ RSI
++++++_ **RSI**>50
+++++ MA
++++++_ **5 SMA** > **50 SMA**
++++++_ **50 SMA** > **180 SMA**
+++++++_ signifies and overall uptrend
+
+++++ Price Action
++++++_ **Close** > **5 SMA**
+
++++[#pink] **Exit Criteria**
+++++ TARGETS
++++++_ specified % above entry price
++++++_ exit at a previous price level (high)
+++++++_ resistance
+++++ Price Action
++++++_  **Close** < **20 SMA**
+++++++_ can be alert to pull\nsome profits
+
+
+
+-- **LONG 2**
+---[#lightgreen] **Entry Criteria**
+---- MACD
+-----_ **MACD** > **Signal**
+-----_ **MACD** > 0
+
+---- RSI
+-----_ **RSI**>50
+---- MA
+-----_ **5 SMA** > **50 SMA**
+-----_ **50 SMA** > **180 SMA**
+------_ signifies and overall uptrend
+-----_ **Divergence > 1 for SMA_50 - SMA_180**
+
+---- Price Action
+-----_ **Close** > **5 SMA**
+
+---[#pink] **Exit Criteria**
+---- TARGETS
+-----_ specified % above entry price
+-----_ exit at a previous price level (high)
+------_ resistance
+---- Price Action
+-----_  **Close** < **20 SMA**
+------_ can be alert to pull\nsome profits
+
+
+++ **LONG 3**
++++_ <i>Pending
+
+
+@endmindm

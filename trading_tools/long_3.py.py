@@ -1,30 +1,31 @@
 """Retrievies requested stocks, calculates current day indicators and generates a trade 'enthusiasm' score based on the traders criteria.""" 
 
-import pandas as pd
-import numpy as np
-import os
-import sys
-import logging
+from dependencies import *
+# import pandas as pd
+# import numpy as np
+# import os
+# import sys
+# import logging
 
-import json
+# import json
 
-sys.path.insert(0,"C:\\Users\\dowdj\\OneDrive\\Documents\\GitHub\\my-modules-and-libraries\\program_work_dir")  # Temporary. Used to help finish development of modules.
-import program_work_dir as pwd
+# sys.path.insert(0,"C:\\Users\\dowdj\\OneDrive\\Documents\\GitHub\\my-modules-and-libraries\\program_work_dir")  # Temporary. Used to help finish development of modules.
+# import program_work_dir as pwd
 
-import yfinance as yf
-import pandas_datareader as pdr
-import pandas_datareader.data as web
-import stockstats
-from stockstats import StockDataFrame as Sdf
-import pandas_ta as ta
+# import yfinance as yf
+# import pandas_datareader as pdr
+# import pandas_datareader.data as web
+# import stockstats
+# from stockstats import StockDataFrame as Sdf
+# import pandas_ta as ta
 
-from collections import deque
+# from collections import deque
 
-import pprint
+# import pprint
 
-import datetime as dt
+# import datetime as dt
 
-CURRENT_DATE=dt.date.today().strftime("%Y-%m-%d")
+# CURRENT_DATE=dt.date.today().strftime("%Y-%m-%d")
 
 def user_inputs():
     """User specifies list of stocks to review and score. User also inputs the date range and the interval of the stock data.
@@ -41,7 +42,7 @@ def user_inputs():
 
 
     inputs={
-        'stock_list':my_stocks['Drones'],
+        'stock_list':my_stocks['Cannibus'],
         'start_date':'2020',
         'stop_date':'2021'}
     

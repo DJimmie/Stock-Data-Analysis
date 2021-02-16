@@ -1,30 +1,6 @@
 """Retrievies requested stocks, calculates current day indicators and generates a trade 'enthusiasm' score based on the traders criteria.""" 
 
-import pandas as pd
-import numpy as np
-import os
-import sys
-import logging
-
-import json
-
-sys.path.insert(0,"C:\\Users\\dowdj\\OneDrive\\Documents\\GitHub\\my-modules-and-libraries\\program_work_dir")  # Temporary. Used to help finish development of modules.
-import program_work_dir as pwd
-
-import yfinance as yf
-import pandas_datareader as pdr
-import pandas_datareader.data as web
-import stockstats
-from stockstats import StockDataFrame as Sdf
-import pandas_ta as ta
-
-from collections import deque
-
-import pprint
-
-import datetime as dt
-
-CURRENT_DATE=dt.date.today().strftime("%Y-%m-%d")
+from dependencies import *
 
 def user_inputs():
     """User specifies list of stocks to review and score. User also inputs the date range and the interval of the stock data.
@@ -63,8 +39,6 @@ def retrieve_OHLC_data(inputs):
         stock_dict[i]=stock
 
         GenerateIndicators(stock_dict[i])
-
-
 
 
 def GenerateIndicators(df):
