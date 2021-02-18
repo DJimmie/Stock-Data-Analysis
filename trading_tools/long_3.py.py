@@ -126,6 +126,7 @@ def trade_criteria(indicator_dict):
     else:
         trade_status_line[symbol]['SMA5_ovr_SMA180']=0
 
+    # SMA 5 is below the SMA 180 but they are converging.
     if (indicator_dict['SMA_50']<indicator_dict['SMA_180']) and indicator_dict['ratio_M50M180']<=1:
         trade_status_line[symbol]['SMA50_under_SMA180']=1
     else:

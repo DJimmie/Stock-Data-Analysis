@@ -1,3 +1,4 @@
+"""TRADE MONITORING & DECISION TOOL"""
 
 
 from dependencies import *
@@ -11,8 +12,8 @@ a=get_config_values(ini_file=ini_file,section='database server',option='sqlite_s
 
 
 class UserInterface():
-    """Parent class for the UI. Instantiates the composit Window.
-    User Interface with fields for entering a data to the database."""
+    """Parent class for the UI. Instantiates the composite Window.
+    User Interface with fields for entering data to the database."""
 
     logging.info('UserInterface()')
 
@@ -20,14 +21,11 @@ class UserInterface():
         """Interface build."""
         UI(None,title='MY TRADING TOOL',
         banner='MY TRADING TOOL',
-        win_color='#003366',
-        window_width=1800)
+        win_color='#6334D0',
+        fg='black',
+        window_height=500)
 
        
-        # self.a_message()
-        # self.toplevel()
-        # self.panedWindow()
-
 
         mainloop()
 

@@ -8,6 +8,8 @@ import logging
 
 import json
 
+import csv
+
 sys.path.insert(0,"C:\\Users\\dowdj\\OneDrive\\Documents\\GitHub\\my-modules-and-libraries\\program_work_dir")  # Temporary. Used to help finish development of modules.
 # import program_work_dir as pwd
 from program_work_dir import *
@@ -35,14 +37,14 @@ import datetime as dt
 from datetime import timedelta
 
 
-CURRENT_DATE=dt.date.today()
-check_non_BDay=any([dt.date.today().weekday()==5,dt.date.today().weekday()==6])
-if check_non_BDay:
-    if dt.date.today().weekday()==5:
-        CURRENT_DATE=dt.date.today()-timedelta(days=1)
-    elif dt.date.today().weekday()==6:
-        CURRENT_DATE=(dt.date.today()-timedelta(days=2))
-CURRENT_DATE=CURRENT_DATE.strftime("%Y-%m-%d")
+# CURRENT_DATE=dt.date.today()
+# check_non_BDay=any([dt.date.today().weekday()==5,dt.date.today().weekday()==6])
+# if check_non_BDay:
+#     if dt.date.today().weekday()==5:
+#         CURRENT_DATE=dt.date.today()-timedelta(days=1)
+#     elif dt.date.today().weekday()==6:
+#         CURRENT_DATE=(dt.date.today()-timedelta(days=2))
+# CURRENT_DATE=CURRENT_DATE.strftime("%Y-%m-%d")
 # print(CURRENT_DATE)
 
 

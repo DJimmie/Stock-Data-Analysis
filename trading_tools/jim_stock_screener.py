@@ -1,0 +1,1 @@
+"""Screen stocks IAW Jim's trading strategies and scoring systems"""

@@ -1,23 +1,50 @@
 """Retrievies requested stocks, calculates current day indicators and generates a trade 'enthusiasm' score based on the traders criteria.""" 
 
 from dependencies import *
+import csv
+
+
+
+def get_nasdaq_tickers(sector):
+    """Getting a list of tickers"""
+
+    tickers=[]
+    line=0
+    with open('nasdaq_screener.csv','r') as f:
+        
+        reader=csv.reader(f)
+        if line==0:
+            header=next(reader)
+        
+        if header!=None:
+            line=1
+            for row in reader:
+                criteria=all([int(row[8])>5_000_000,row[9]==sector])
+                if criteria:
+                    tickers.append(row[0])
+                
+    print(tickers)
+
+    return tickers
+
 
 def user_inputs():
     """User specifies list of stocks to review and score. User also inputs the date range and the interval of the stock data.
     Inputs are stored in a dictionary."""
     
+    
     my_stocks={
     'Cannibus':['APHA','KSHB','CBWTF','CRON','sndl','cgc','ammj','kern'],
     'Drones':['NVDA','AMBA','AVAV','nkla'],
-    'Energy':['PBD','FAN'],
-    'Healthcare':['ADMS','cern','kern','cslt','nspr','ontx'],
+    'Energy':None,
+    'Healthcare':['cern'],
     'my_positions':['imgn','kern','ammj','apha','sndl','spy'],
     'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc']
     }
 
 
     inputs={
-        'stock_list':my_stocks['Drones'],
+        'stock_list':my_stocks['Cannibus'],
         'start_date':'2020',
         'stop_date':'2021'}
     
@@ -28,7 +55,7 @@ def retrieve_OHLC_data(inputs):
     Input---> list of stocks
     Output ---> dictionary with ticker symbol keys and the retrieve OHLC dataframe as values
     """
-    global stock_dict,symbol
+    global stock_dict,symbol,CURRENT_DATE
     stock_dict=dict()
     
     for i in inputs['stock_list']:
@@ -36,7 +63,13 @@ def retrieve_OHLC_data(inputs):
         symbol = i.upper() 
         stock_name=symbol
         stock =pdr.get_data_yahoo(symbol)[inputs['start_date']:inputs['stop_date']]
+        if len(stock)<180:
+            print(len(stock))
+            continue
         stock_dict[i]=stock
+
+        CURRENT_DATE=stock.iloc[[-1]].index.date[0].strftime("%Y-%m-%d")
+        print(CURRENT_DATE)
 
         GenerateIndicators(stock_dict[i])
 
@@ -44,18 +77,16 @@ def retrieve_OHLC_data(inputs):
 def GenerateIndicators(df):
     """generate the stock indictors for the stock OHLCV data"""
 
-    
     df=trade_criteria_dataset(df)
 
     print(df.head())
 
     send_results_to_file({'Ticker':symbol,'dataset':df.tail()},'a')
 
-
     print(df.loc[CURRENT_DATE])
-
     indicator_dict=df.loc[CURRENT_DATE].to_dict()
 
+    
     print(indicator_dict)
 
     send_results_to_file({'Ticker':symbol,'Results':indicator_dict},'a')
