@@ -38,13 +38,13 @@ def user_inputs():
     'Drones':['NVDA','AMBA','AVAV','nkla'],
     'Energy':None,
     'Healthcare':['cern'],
-    'my_positions':['imgn','kern','ammj','apha','sndl','spy'],
+    'my_positions':['imgn','adxs','cdev'],
     'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc']
     }
 
 
     inputs={
-        'stock_list':my_stocks['Cannibus'],
+        'stock_list':my_stocks['my_positions'],
         'start_date':'2020',
         'stop_date':'2021'}
     
