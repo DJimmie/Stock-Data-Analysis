@@ -38,7 +38,7 @@ def user_inputs():
     'Drones':['NVDA','AMBA','AVAV','nkla'],
     'Energy':None,
     'Healthcare':['cern'],
-    'my_positions':['imgn','adxs','cdev'],
+    'my_positions':['imgn','apha','cdev','qqq','cern','pdce'],
     'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc']
     }
 
@@ -80,6 +80,8 @@ def GenerateIndicators(df):
     df=trade_criteria_dataset(df)
 
     print(df.head())
+
+    print(df.tail())
 
     send_results_to_file({'Ticker':symbol,'dataset':df.tail()},'a')
 

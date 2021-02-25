@@ -47,8 +47,9 @@ class ControlCenter():
         fg='black',
         sticky=NW)
 
+        symbol_list=['APHA','KSHB','CBWTF','CRON','sndl','cgc','ammj','kern']
         self.symbol=Combos(the_frame=self.options_frame.F,name='Symbol',
-        row=1,col=0,drop_down_list=None,fw=15,sticky=E+W,direction='HORZ')  
+        row=1,col=0,drop_down_list=symbol_list,fw=15,sticky=E+W,direction='HORZ')  
 
         self.strike_price=Entries(the_frame=self.options_frame.F,name='Strike Price',
         row=2,col=0,fw=15,sticky=E+W,direction='HORZ')  
@@ -87,7 +88,7 @@ class ControlCenter():
         fg='black',
         sticky=NW)
 
-        self.symbol=Combos(the_frame=self.stocks_frame.F,name='Symbol',
+        self.stock_ticker=Combos(the_frame=self.stocks_frame.F,name='Symbol',
         row=1,col=0,drop_down_list=None,fw=15,sticky=E+W,direction='HORZ')  
 
         self.share_price=Entries(the_frame=self.stocks_frame.F,name='Share Price',
@@ -150,12 +151,26 @@ class ControlCenter():
 
         option_data=dict()
         ticker=self.symbol.combo.get().upper()
-        option_data[f'{ticker}']={}
+        # option_data[f'{ticker}']={}
+        option_data[ticker]={}
+
+        option_data[ticker].update({'strike_price':float(self.strike_price.entry.get())})
+        option_data[ticker].update({'option_price':float(self.options_price.entry.get())})
+        option_data[ticker].update({'contracts':int(self.num_contracts.entry.get())})
+        option_data[ticker].update({'expiration':self.expire_date.get()})
+        option_data[ticker].update({'bep':float(self.break_even_price.entry.get())})
+        option_data[ticker].update({'$100_profit':float(self.one_hundred_price.entry.get())})
 
         print(ticker)
         print(option_data)
 
+        self.option_data=option_data
 
+        self.positions_list()
+
+    def positions_list(self):
+
+        print(self.option_data.keys())
 
 
 
