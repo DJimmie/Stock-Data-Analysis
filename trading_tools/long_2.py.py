@@ -102,11 +102,18 @@ def trade_criteria_dataset(df):
     df.ta.macd(append=True)
     df.ta.rsi(append=True)
     df.ta.sma(length=5,append=True)
+    df.ta.sma(length=20,append=True)
     df.ta.sma(length=50,append=True)
     df.ta.sma(length=180,append=True)
 
     df['dif_M50M180']=df['SMA_50']-df['SMA_180' ]
     df['ratio_M50M180'] = df['dif_M50M180'].div(df['dif_M50M180'].shift(1))
+
+    df['dif_M5M20']=df['SMA_5']-df['SMA_20' ]
+    df['ratio_M5M20'] = df['dif_M5M20'].div(df['dif_M5M20'].shift(1))
+
+    df['dif_M20M50']=df['SMA_20']-df['SMA_50' ]
+    df['ratio_M20M50'] = df['dif_M20M50'].div(df['dif_M20M50'].shift(1))
 
     df['ratio_MACDh_12_26_9'] = df['MACDh_12_26_9'].div(df['MACDh_12_26_9'].shift(1))
 
@@ -136,20 +143,35 @@ def trade_criteria(indicator_dict):
     else:
         trade_status_line[symbol]['RSI14_>_50']=0
 
-    if indicator_dict['SMA_5']>indicator_dict['SMA_50']:
-        trade_status_line[symbol]['SMA5_ovr_SMA50']=1
+    if indicator_dict['SMA_5']>indicator_dict['SMA_20']:
+        trade_status_line[symbol]['SMA5_ovr_SMA20']=1
     else:
-        trade_status_line[symbol]['SMA5_ovr_SMA50']=0
+        trade_status_line[symbol]['SMA5_ovr_SMA20']=0
+
+    if indicator_dict['SMA_20']>indicator_dict['SMA_50']:
+        trade_status_line[symbol]['SMA20_ovr_SMA50']=1
+    else:
+        trade_status_line[symbol]['SMA20_ovr_SMA50']=0
 
     if indicator_dict['SMA_50']>indicator_dict['SMA_180']:
         trade_status_line[symbol]['SMA50_ovr_SMA180']=1
     else:
         trade_status_line[symbol]['SMA50_ovr_SMA180']=0
 
+    if indicator_dict['ratio_M5M20']>=1:
+        trade_status_line[symbol]['SMA5_diverge_SMA50']=1
+    else:
+        trade_status_line[symbol]['SMA5_diverge_SMA50']=0
+
     if indicator_dict['ratio_M50M180']>=1:
         trade_status_line[symbol]['SMA50_diverge_SMA180']=1
     else:
         trade_status_line[symbol]['SMA50_diverge_SMA180']=0
+
+    if indicator_dict['ratio_M20M50']>=1:
+        trade_status_line[symbol]['SMA20_diverge_SMA50']=1
+    else:
+        trade_status_line[symbol]['SMA20_diverge_SMA50']=0
 
     if indicator_dict['close']>indicator_dict['SMA_5']:
         trade_status_line[symbol]['CLOSE_ovr_SMA5']=1
