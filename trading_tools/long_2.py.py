@@ -38,13 +38,14 @@ def user_inputs():
     'Drones':['NVDA','AMBA','AVAV','nkla'],
     'Energy':None,
     'Healthcare':['cern'],
-    'my_positions':['imgn','apha','cdev','qqq','cern','pdce'],
-    'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc']
+    'my_positions':['imgn','cdev','nmrk','gme'],
+    'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc'],
+    'Sector':None
     }
 
 
     inputs={
-        'stock_list':my_stocks['my_positions'],
+        'stock_list':my_stocks['Drones'],
         'start_date':'2020',
         'stop_date':'2021'}
     
@@ -159,9 +160,9 @@ def trade_criteria(indicator_dict):
         trade_status_line[symbol]['SMA50_ovr_SMA180']=0
 
     if indicator_dict['ratio_M5M20']>=1:
-        trade_status_line[symbol]['SMA5_diverge_SMA50']=1
+        trade_status_line[symbol]['SMA5_diverge_SMA20']=1
     else:
-        trade_status_line[symbol]['SMA5_diverge_SMA50']=0
+        trade_status_line[symbol]['SMA5_diverge_SMA20']=0
 
     if indicator_dict['ratio_M50M180']>=1:
         trade_status_line[symbol]['SMA50_diverge_SMA180']=1

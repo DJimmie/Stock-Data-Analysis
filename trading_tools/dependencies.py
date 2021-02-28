@@ -58,7 +58,7 @@ def the_program_folder(x):
     logging.basicConfig(filename=log_file, level=logging.INFO, filemode='w', format=' %(asctime)s -%(levelname)s - %(message)s')
     # logging.info('Start')
 
-    return ini_file,log_file
+    return ini_file,log_file,client
 
 
 def get_config_values(ini_file,section,option):
