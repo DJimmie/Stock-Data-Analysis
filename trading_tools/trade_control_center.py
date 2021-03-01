@@ -15,10 +15,10 @@ stocks_json_file=f'c:/my_python_programs/{client}/stocks.json'
 # a=WorkDirectory(client_sub_folder='options_trading',client_folder=client)
 # b=WorkDirectory(client_sub_folder='stock_trading',client_folder=client)
 
-
+header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id']
 if not os.path.isfile(options_json_file):
     options_data_dict=dict()
-    header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id']
+    # header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id']
     for i in header:
         options_data_dict[i]=list()
     with open(options_json_file,'w') as f: 
@@ -156,6 +156,10 @@ class ControlCenter():
         self.option_positions.list_label['fg']=bg='black'
         self.stock_positions.list_label['fg']=bg='black'
 
+        # self.option_positions.list_box.bind("<Double-Button-1>",lambda x: print(self.option_positions.list_box.get(ANCHOR)))
+        self.option_positions.list_box.bind("<Double-Button-1>",lambda x: TradeProgressWin(tradeType='options',id=self.option_positions.list_box.get(ANCHOR)))
+
+
         self.populate_positions('options')
         
     def stock_calcs(self):
@@ -196,7 +200,7 @@ class ControlCenter():
         option_data[ticker].update({'strike_price':float(self.strike_price.entry.get())})
         option_data[ticker].update({'option_price':float(self.options_price.entry.get())})
         option_data[ticker].update({'contracts':int(self.num_contracts.entry.get())})
-        option_data[ticker].update({'purchase_date':self.expire_date.get()})
+        option_data[ticker].update({'purchase_date':self.entry_date.get()})
         option_data[ticker].update({'expiration':self.expire_date.get()})
         option_data[ticker].update({'bep':float(self.break_even_price.entry.get())})
         option_data[ticker].update({'$100_profit':float(self.one_hundred_price.entry.get())})
@@ -287,19 +291,7 @@ class ControlCenter():
         for c,k in enumerate(open_positions):
             self.option_positions.list_box.insert(c,k)
 
-
-
-
-
-
-
-
-
-
-
-
-
-        
+        # TradeProgressWin(data)
 
 
 
@@ -307,32 +299,58 @@ class ControlCenter():
 class TradeProgressWin():
     """Experimental---> testing use of toplevel to house the trade progress info"""
 
-    def __init__(self,data):
-        self.data=data
+    def __init__(self,tradeType,id):
+        self.tradeType=tradeType
+        self.id=id
+        self.data=ControlCenter.load_json_file(self.tradeType)
         self.top = Toplevel(
             bg='blue',
             bd=5,
             width=200,
             height=200)
 
-        self.top.title(f'OPTIONS CONTRACT-----> {self.data["symbol"].upper()}') 
+        # self.top.title(f'OPTIONS CONTRACT-----> {self.data["ticker"][0].upper()}') 
 
+        self.extracted_data=self.extract_trade_data()
         self.build_gui()
+        self.populate_the_gui()
 
         self.top.mainloop()
+
+    def extract_trade_data(self):
+        """extracting instance of trade data from the json file"""
+
+        # search data['id'] for the provided id value and get the list index
+        for i in self.data['id']:
+            if i==self.id:
+                index=self.data['id'].index(i)
+        
+        print(self.data)
+        print(index)
+
+        # using the list index, pull all values from the other key-value(list) pairs corresponding to the provided id. # place the retrieve valuse in a dict and return
+        d=dict()
+        for i in header:
+            d[i]=self.data[i][index]
+
+        print(d)
+
+        return d
+
+
 
     def build_gui(self):
         FONT_SIZE=16
         self.ticker=Label(
             master=self.top,
-            text=self.data["symbol"],
+            text='TBD',
             bg='black',
             fg='white',
             font='Ariel 16 bold')
         self.ticker.grid(row=0,column=0,columnspan=5)
 
         # Form Labels
-        width=15
+        width=18
         self.stock_price_label=Label(
             master=self.top,
             text='Stock Price',
@@ -438,8 +456,36 @@ class TradeProgressWin():
             width=width,bd=5)
         self.bep.grid(row=6,column=1)
 
+        self.one_hundred_profit_label=Label(
+            master=self.top,
+            text='$100 Profit Milestone',
+            bg='white',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width)
+        self.one_hundred_profit_label.grid(row=7,column=0,columnspan=1)
+
+        self.one_hundred_profit=Entry(
+            master=self.top,
+            bg='#FF33FF',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width,bd=5)
+        self.one_hundred_profit.grid(row=7,column=1)
+
         # DATA FIELDS   
 
+        
+
+
+    def populate_the_gui(self):
+        
+        self.ticker['text']=self.extracted_data['id']
+        self.strike_price.insert(0,self.extracted_data['strike_price'])
+        self.option_price.insert(0,self.extracted_data['option_price'])
+        self.num_contracts.insert(0,self.extracted_data['contracts'])
+        self.bep.insert(0,self.extracted_data['bep'])
+        self.one_hundred_profit.insert(0,self.extracted_data['$100_profit'])
 
     
 
