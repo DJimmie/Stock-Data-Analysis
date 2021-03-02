@@ -553,6 +553,7 @@ class TradeProgressWin():
 
         criteria_labels=[x for x in self.score_data.keys()]
         criteria_values=[x for x in self.score_data.values()]
+        trade_score=sum(criteria_values)/len(criteria_values)
 
         for c,i in enumerate(criteria_labels,1):
             if criteria_values[c-1]==1:
@@ -562,6 +563,21 @@ class TradeProgressWin():
                 
             self.labels=Label(master=self.score_frame.F,text=i,font='Ariel 12 bold',bg=bg)
             self.labels.grid(row=c,column=0,sticky=NW)
+
+        if trade_score<=.50:
+            bg='#FF0000'
+            fg='black'
+        elif trade_score>=.80:
+            bg='#7CFC00'
+            fg='black'
+        else:
+            bg='yellow'
+            fg='#FF0000'
+
+        trade_score=round(trade_score*100,2)
+
+        self.trade_score_label=Label(master=self.score_frame.F,text=f'{trade_score}%',font='Ariel 12 bold',bg=bg,fg=fg)
+        self.trade_score_label.grid(row=0,column=1,sticky=NW)
 
 
 
