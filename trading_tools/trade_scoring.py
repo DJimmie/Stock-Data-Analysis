@@ -4,6 +4,12 @@ from dependencies import *
 import csv
 
 
+global trade_status_line, baseline_scores,last_Close
+trade_status_line=dict()
+baseline_scores=dict()
+last_Close=None
+
+
 
 def get_nasdaq_tickers(sector):
     """Getting a list of tickers"""
@@ -28,24 +34,18 @@ def get_nasdaq_tickers(sector):
     return tickers
 
 
-def user_inputs():
+def user_inputs(tradeType,ticker):
     """User specifies list of stocks to review and score. User also inputs the date range and the interval of the stock data.
     Inputs are stored in a dictionary."""
     
-    
     my_stocks={
-    'Cannibus':['APHA','KSHB','CBWTF','CRON','sndl','cgc','ammj','kern'],
-    'Drones':['NVDA','AMBA','AVAV','nkla'],
-    'Energy':None,
-    'Healthcare':['cern'],
-    'my_positions':['imgn','cdev','nmrk','apa','znga'],
-    'current_paper_trades':['spy','slp','adxs','plug','fcx','cron','cgc'],
-    'Sector':None
+    'options':[ticker],
+    'stocks':[ticker],
     }
 
-
+    
     inputs={
-        'stock_list':my_stocks['my_positions'],
+        'stock_list':my_stocks[tradeType],
         'start_date':'2020',
         'stop_date':'2021'}
     
@@ -80,6 +80,8 @@ def GenerateIndicators(df):
 
     df=trade_criteria_dataset(df)
 
+    print(last_Close)
+
     print(df.head())
 
     print(df.tail())
@@ -99,6 +101,7 @@ def GenerateIndicators(df):
 
 def trade_criteria_dataset(df):
 
+    global last_Close
     # make a dataframe
     df.ta.macd(append=True)
     df.ta.rsi(append=True)
@@ -119,6 +122,10 @@ def trade_criteria_dataset(df):
     df['ratio_MACDh_12_26_9'] = df['MACDh_12_26_9'].div(df['MACDh_12_26_9'].shift(1))
 
     df.dropna(inplace=True)
+
+    last_Close=df['close'][CURRENT_DATE]
+    
+    
 
     return df
 
@@ -179,13 +186,11 @@ def trade_criteria(indicator_dict):
     else:
         trade_status_line[symbol]['CLOSE_ovr_SMA5']=0
 
-
     send_results_to_file({'Ticker':symbol,'Results':trade_status_line[symbol]},'a')
 
     print(f'{trade_status_line}\n')
 
     enthusiasm_score(trade_status_line)
-
 
 
 def enthusiasm_score(trade_status_line):
@@ -215,17 +220,10 @@ def send_results_to_file(data,file_action='a'):
         file.write('\n\n')
 
 
-if __name__ == '__main__':
-
-
-    global trade_status_line, baseline_scores
-    trade_status_line=dict()
-    baseline_scores=dict()
-
-    send_results_to_file({'TRADE TRACKER REPORT':'------------>'},'w')
-
-    user_inputs()
     
-    send_results_to_file({'* BASELINE SCORES--->':baseline_scores},'a')
+
+send_results_to_file({'TRADE TRACKER REPORT':'------------>'},'w')
+    
+send_results_to_file({'* BASELINE SCORES--->':baseline_scores},'a')
     
 

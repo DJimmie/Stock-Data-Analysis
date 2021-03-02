@@ -2,6 +2,7 @@
 
 
 from dependencies import *
+import trade_scoring
 
 # Create utility folder and logging file
 ini_file,log_file,client=the_program_folder(os.path.basename(__file__))
@@ -111,7 +112,7 @@ class ControlCenter():
         
 
         ## STOCKS FRAME
-        self.stocks_frame=Frames(row=1,col=1,bg='#00FF00',relief='sunken',
+        self.stocks_frame=Frames(row=1,col=1,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='STOCK TRADES',
         fg='black',
@@ -302,7 +303,7 @@ class TradeProgressWin():
     def __init__(self,tradeType,id):
         self.tradeType=tradeType
         self.id=id
-        self.data=ControlCenter.load_json_file(self.tradeType)
+        self.data=ControlCenter.load_json_file(self.tradeType) ##--->pulling the json file
         self.top = Toplevel(
             bg='blue',
             bd=5,
@@ -313,7 +314,16 @@ class TradeProgressWin():
 
         self.extracted_data=self.extract_trade_data()
         self.build_gui()
+
+        trade_scoring.user_inputs(tradeType='options',ticker=self.extracted_data['ticker'])
+
+        self.last_stock_price=trade_scoring.last_Close
+       
+        self.score_data=trade_scoring.trade_status_line[self.extracted_data['ticker']]
+        print(self.score_data)
+
         self.populate_the_gui()
+
 
         self.top.mainloop()
 
@@ -450,7 +460,7 @@ class TradeProgressWin():
 
         self.bep=Entry(
             master=self.top,
-            bg='#FF33FF',
+            bg='#FF0000',
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -467,25 +477,98 @@ class TradeProgressWin():
 
         self.one_hundred_profit=Entry(
             master=self.top,
-            bg='#FF33FF',
+            bg='#C0C0C0',
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
         self.one_hundred_profit.grid(row=7,column=1)
 
+        self.entry_date_label=Label(
+            master=self.top,
+            text='Entry Date',
+            bg='white',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width)
+        self.entry_date_label.grid(row=8,column=0,columnspan=1)
+
+        self.entry_date=Entry(
+            master=self.top,
+            bg='#C0C0C0',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width,bd=5)
+        self.entry_date.grid(row=8,column=1)
+
+        self.expiration_date_label=Label(
+            master=self.top,
+            text='Expiration Date',
+            bg='white',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width)
+        self.expiration_date_label.grid(row=9,column=0,columnspan=1)
+
+        self.expiration_date=Entry(
+            master=self.top,
+            bg='#C0C0C0',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width,bd=5)
+        self.expiration_date.grid(row=9,column=1)
+
         # DATA FIELDS   
 
-        
-
-
+    
     def populate_the_gui(self):
         
         self.ticker['text']=self.extracted_data['id']
+        self.stock_price.insert(0,round(self.last_stock_price,2))
         self.strike_price.insert(0,self.extracted_data['strike_price'])
         self.option_price.insert(0,self.extracted_data['option_price'])
         self.num_contracts.insert(0,self.extracted_data['contracts'])
+        self.entry_date.insert(0,self.extracted_data['purchase_date'])
+        self.expiration_date.insert(0,self.extracted_data['expiration'])
         self.bep.insert(0,self.extracted_data['bep'])
         self.one_hundred_profit.insert(0,self.extracted_data['$100_profit'])
+
+        # 
+        if self.last_stock_price>self.extracted_data['bep']:
+            self.bep['bg']='#7CFC00'
+
+        if self.last_stock_price>self.extracted_data['$100_profit']:
+            self.one_hundred_profit['bg']='#7CFC00'
+
+
+        self.score()
+
+    def score(self):
+
+        self.score_frame=Frames(row=10,col=0,host=self.top,bg='#808000',relief='sunken',
+        banner_font='Ariel 16 bold',
+        banner_text='TRADE SCORE',
+        fg='black',
+        pady=20,
+        sticky=NW)
+
+        criteria_labels=[x for x in self.score_data.keys()]
+        criteria_values=[x for x in self.score_data.values()]
+
+        for c,i in enumerate(criteria_labels,1):
+            if criteria_values[c-1]==1:
+                bg='#7CFC00'
+            elif criteria_values[c-1]==0:
+                bg='#FF0000'
+                
+            self.labels=Label(master=self.score_frame.F,text=i,font='Ariel 12 bold',bg=bg)
+            self.labels.grid(row=c,column=0,sticky=NW)
+
+
+
+
+
+
+
 
     
 
