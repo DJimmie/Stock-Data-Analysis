@@ -43,7 +43,9 @@ def user_inputs(tradeType,ticker):
     'stocks':[ticker],
     }
 
-    
+    print(f'03042021------->{my_stocks}')
+    print(f'03042021------->{ticker}')
+
     inputs={
         'stock_list':my_stocks[tradeType],
         'start_date':'2020',
@@ -58,6 +60,8 @@ def retrieve_OHLC_data(inputs):
     """
     global stock_dict,symbol,CURRENT_DATE
     stock_dict=dict()
+
+    print(f'03042021---------->{inputs}')
     
     for i in inputs['stock_list']:
         # send_results_to_file({'TRADE DATA FOR------>':i.upper()},'a')

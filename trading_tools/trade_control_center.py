@@ -157,12 +157,25 @@ class ControlCenter():
         self.option_positions.list_label['fg']=bg='black'
         self.stock_positions.list_label['fg']=bg='black'
 
-        # self.option_positions.list_box.bind("<Double-Button-1>",lambda x: print(self.option_positions.list_box.get(ANCHOR)))
         self.option_positions.list_box.bind("<Double-Button-1>",lambda x: TradeProgressWin(tradeType='options',id=self.option_positions.list_box.get(ANCHOR)))
-
-
         self.populate_positions('options')
-        
+
+        ## STOCK WATCH FRAME
+
+        self.stock_watch_frame=Frames(row=1,col=3,bg='#D2691E',relief='sunken',
+        banner_font='Ariel 16 bold',
+        banner_text='STOCK WATCH',
+        fg='white',
+        sticky=NW)
+
+        stock_list=['APHA','KSHB','CBWTF','CRON','sndl','cgc','ammj','kern']
+        self.swTicker=Combos(the_frame=self.stock_watch_frame.F,name='Symbol',
+        row=1,col=0,drop_down_list=stock_list,fw=15,sticky=E+W,direction='HORZ') 
+
+        self.swTicker.combo.bind("<Return>", lambda x: StockCheck(self.swTicker.combo.get()))
+        self.swTicker.combo.bind("<<ComboboxSelected>>",lambda x: StockCheck(self.swTicker.combo.get()))
+ 
+   
     def stock_calcs(self):
 
         a=float(self.share_price.entry.get())
@@ -581,12 +594,101 @@ class TradeProgressWin():
 
 
 
+class StockCheck():
+    """Retrieve trade score for selected stock"""
+    def __init__(self,ticker):
+        self.tradeType='stocks'
+        self.ticker=ticker.upper()
+        
+        self.top = Toplevel(
+            bg='grey',
+            bd=5,
+            width=200,
+            height=200)
+
+        self.build_gui()
+
+        trade_scoring.user_inputs(tradeType=self.tradeType,ticker=self.ticker)
+
+        self.last_stock_price=trade_scoring.last_Close
+       
+        self.score_data=trade_scoring.trade_status_line[self.ticker]
+        print(self.score_data)
+
+        self.score()
+
+    def build_gui(self):
+        FONT_SIZE=16
+        self.ticker_label=Label(
+            master=self.top,
+            text=self.ticker,
+            bg='black',
+            fg='white',
+            font='Ariel 16 bold')
+        self.ticker_label.grid(row=0,column=0,columnspan=2)
+
+        # Form Labels
+        width=18
+        self.stock_price_label=Label(
+            master=self.top,
+            text='Stock Price',
+            bg='white',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width)
+        self.stock_price_label.grid(row=1,column=0)
+
+        self.stock_price=Entry(
+            master=self.top,
+            bg='yellow',
+            fg='black',
+            font=f'Ariel {FONT_SIZE} bold',
+            width=width,bd=5)
+        self.stock_price.grid(row=1,column=1)
+
+    def score(self):
+
+        self.score_frame=Frames(row=2,col=0,host=self.top,bg='#808000',relief='sunken',
+        banner_font='Ariel 16 bold',
+        banner_text='EVALUATION SCORE',
+        fg='white',
+        pady=20,
+        sticky=NW)
+
+        self.stock_price.insert(0,round(self.last_stock_price,2))
+        criteria_labels=[x for x in self.score_data.keys()]
+        criteria_values=[x for x in self.score_data.values()]
+        trade_score=sum(criteria_values)/len(criteria_values)
+
+        for c,i in enumerate(criteria_labels,1):
+            if criteria_values[c-1]==1:
+                bg='#7CFC00'
+            elif criteria_values[c-1]==0:
+                bg='#FF0000'
+                
+            self.labels=Label(master=self.score_frame.F,text=i,font='Ariel 12 bold',bg=bg)
+            self.labels.grid(row=c,column=0,sticky=NW)
+
+        if trade_score<=.50:
+            bg='#FF0000'
+            fg='black'
+        elif trade_score>=.80:
+            bg='#7CFC00'
+            fg='black'
+        else:
+            bg='yellow'
+            fg='#FF0000'
+
+        trade_score=round(trade_score*100,2)
+
+        self.trade_score_label=Label(master=self.score_frame.F,text=f'{trade_score}%',font='Ariel 12 bold',bg=bg,fg=fg)
+        self.trade_score_label.grid(row=0,column=1,sticky=NW)
 
 
 
 
 
-    
+
 
 
 UserInterface()
