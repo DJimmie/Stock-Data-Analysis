@@ -374,6 +374,7 @@ class TradeProgressWin():
 
         # Form Labels
         width=18
+        bg_entry='#F5F5F5'
         self.stock_price_label=Label(
             master=self.top,
             text='Stock Price',
@@ -385,7 +386,7 @@ class TradeProgressWin():
 
         self.stock_price=Entry(
             master=self.top,
-            bg='yellow',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -402,7 +403,7 @@ class TradeProgressWin():
 
         self.strike_price=Entry(
             master=self.top,
-            bg='yellow',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -420,7 +421,7 @@ class TradeProgressWin():
 
         self.num_contracts=Entry(
             master=self.top,
-            bg='yellow',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -439,7 +440,7 @@ class TradeProgressWin():
 
         self.option_price=Entry(
             master=self.top,
-            bg='yellow',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -456,7 +457,7 @@ class TradeProgressWin():
 
         self.last_price=Entry(
             master=self.top,
-            bg='yellow',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -490,7 +491,7 @@ class TradeProgressWin():
 
         self.one_hundred_profit=Entry(
             master=self.top,
-            bg='#C0C0C0',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -507,7 +508,7 @@ class TradeProgressWin():
 
         self.entry_date=Entry(
             master=self.top,
-            bg='#C0C0C0',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -524,7 +525,7 @@ class TradeProgressWin():
 
         self.expiration_date=Entry(
             master=self.top,
-            bg='#C0C0C0',
+            bg=bg_entry,
             fg='black',
             font=f'Ariel {FONT_SIZE} bold',
             width=width,bd=5)
@@ -551,6 +552,13 @@ class TradeProgressWin():
 
         if self.last_stock_price>self.extracted_data['$100_profit']:
             self.one_hundred_profit['bg']='#7CFC00'
+
+
+        if self.last_stock_price>self.extracted_data['strike_price']:
+            self.strike_price['bg']='#7CFC00' 
+        elif self.last_stock_price<self.extracted_data['strike_price'] :
+            self.strike_price['bg']='#FF0000'
+
 
 
         self.score()
