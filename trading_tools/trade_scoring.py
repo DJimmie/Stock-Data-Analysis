@@ -34,7 +34,7 @@ def get_nasdaq_tickers(sector):
     return tickers
 
 
-def user_inputs(tradeType,ticker):
+def user_inputs(tradeType,ticker,**kwargs):
     """User specifies list of stocks to review and score. User also inputs the date range and the interval of the stock data.
     Inputs are stored in a dictionary."""
     
@@ -43,15 +43,21 @@ def user_inputs(tradeType,ticker):
     'stocks':[ticker],
     }
 
-    print(f'03042021------->{my_stocks}')
-    print(f'03042021------->{ticker}')
-
     inputs={
-        'stock_list':my_stocks[tradeType],
-        'start_date':'2020',
-        'stop_date':'2021'}
-    
+    'stock_list':my_stocks[tradeType],
+    'start_date':None,
+    'stop_date':None
+    }
+
+    today = dt.date.today()
+    two_years_ago=str(today.year-2)
+
+    inputs['start_date'] = kwargs['start_date'] if 'start_date' in kwargs else two_years_ago
+    inputs['stop_date'] = kwargs['stop_date'] if 'stop_date' in kwargs else None
+    # interval=kwargs['interval'] if 'interval' in kwargs else '1d'
+
     retrieve_OHLC_data(inputs)
+    
 
 def retrieve_OHLC_data(inputs):
     """
@@ -67,13 +73,15 @@ def retrieve_OHLC_data(inputs):
         # send_results_to_file({'TRADE DATA FOR------>':i.upper()},'a')
         symbol = i.upper() 
         stock_name=symbol
+
         stock =pdr.get_data_yahoo(symbol)[inputs['start_date']:inputs['stop_date']]
+        
         if len(stock)<180:
             print(len(stock))
             continue
         stock_dict[i]=stock
 
-        CURRENT_DATE=stock.iloc[[-1]].index.date[0].strftime("%Y-%m-%d")
+        CURRENT_DATE=stock.iloc[[-1]].index.date[0].strftime("%Y-%m-%d")   ## This is the last (most recent trading date)
         print(CURRENT_DATE)
 
         GenerateIndicators(stock_dict[i])
@@ -93,7 +101,7 @@ def GenerateIndicators(df):
     send_results_to_file({'Ticker':symbol,'dataset':df.tail()},'a')
 
     print(df.loc[CURRENT_DATE])
-    indicator_dict=df.loc[CURRENT_DATE].to_dict()
+    indicator_dict=df.loc[CURRENT_DATE].to_dict()   ##------> Getting the most recent date (the last trading date)
 
     
     print(indicator_dict)
@@ -129,8 +137,6 @@ def trade_criteria_dataset(df):
 
     last_Close=df['close'][CURRENT_DATE]
     
-    
-
     return df
 
 def trade_criteria(indicator_dict):

@@ -328,7 +328,7 @@ class TradeProgressWin():
         self.extracted_data=self.extract_trade_data()
         self.build_gui()
 
-        trade_scoring.user_inputs(tradeType='options',ticker=self.extracted_data['ticker'])
+        trade_scoring.user_inputs(tradeType='options',ticker=self.extracted_data['ticker']) ##-----> Accessing the trade_scoring module
 
         self.last_stock_price=trade_scoring.last_Close
        
@@ -558,6 +558,20 @@ class TradeProgressWin():
             self.strike_price['bg']='#7CFC00' 
         elif self.last_stock_price<self.extracted_data['strike_price'] :
             self.strike_price['bg']='#FF0000'
+
+        # convert the expiration to datetime object and color code the entry per days from expiration
+        expiration_date = dt.datetime.strptime(self.extracted_data['expiration'],'%m/%d/%y').date()
+        today = dt.date.today()
+        days_to_expiration=expiration_date-today
+
+        self.expiration_date['bg']=(
+            '#FFFF00' if all([days_to_expiration.days<=5,days_to_expiration.days>=3]) else 
+            '#FF0000' if days_to_expiration.days<3 else 
+            '#F5F5F5'
+        )
+
+
+
 
 
 
