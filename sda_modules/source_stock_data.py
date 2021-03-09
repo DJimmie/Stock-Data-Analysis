@@ -51,27 +51,37 @@ class StockData():
 
         # self.option_data()
 
-    def option_data(self):
+    def option_data(self,expire_date,requested_data='option_chain',strike_price=None,optionType='calls'):
 
-        print(self.fdata.options)
+        option_expirations=self.fdata.options
+        print(option_expirations)  ##---> the option expiration dates for the given ticker
 
-        print(self.fdata.option_chain('2021-03-12'))
 
-        # print(type(fdata.option_chain('2021-03-19')))
+        data=self.fdata.option_chain(expire_date)
+        # print(data) 
+
+        data=(data.calls if optionType=='calls' else 
+        data.puts if optionType=='puts' else
+        data)
+
+        if requested_data=='option_chain':
+            return data
+        elif requested_data=='last_option_price':
+            the_query=f'strike=={strike_price}'
+            i=data.query(the_query)['strike'].index[0]
+            lastPrice=data.query(the_query)['lastPrice'][i]
+            return lastPrice
+
+
+
 
 
 # %%
-# StockData(ticker='GE',start_date='2019-01-01',end_date='2021-01-01')
-
-# G=StockData(ticker='cron',interval='1d')
-
-G=StockData(ticker='adxs',start_date='2018-01-01',interval='1d')
 
 
-
-print(G.ticker)
-
-print(G.fdata)
+# G=StockData(ticker='cron',start_date='2018-01-01',interval='1d')
+# print(G.ticker)
+# print(G.fdata)
     
     
 

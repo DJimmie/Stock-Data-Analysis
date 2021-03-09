@@ -20,6 +20,9 @@ import sqlite_database_interface as sdb
 sys.path.insert(0, "C:\\Users\\dowdj\\OneDrive\\Documents\\GitHub\\my-modules-and-libraries\\gui_maker")
 from gui_build import *
 
+sys.path.insert(0, "C:\\Users\\dowdj\\OneDrive\\Documents\\GitHub\\Stock-Data-Analysis\\sda_modules")
+from source_stock_data import *
+
 
 
 import yfinance as yf

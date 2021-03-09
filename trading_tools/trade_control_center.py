@@ -330,8 +330,8 @@ class TradeProgressWin():
 
         trade_scoring.user_inputs(tradeType='options',ticker=self.extracted_data['ticker']) ##-----> Accessing the trade_scoring module
 
-        self.last_stock_price=trade_scoring.last_Close
-       
+        self.last_stock_price=trade_scoring.last_Close  ##----> getting the last stock price
+
         self.score_data=trade_scoring.trade_status_line[self.extracted_data['ticker']]
         print(self.score_data)
 
@@ -371,6 +371,14 @@ class TradeProgressWin():
             fg='white',
             font='Ariel 16 bold')
         self.ticker.grid(row=0,column=0,columnspan=5)
+
+        self.PL_label=Label(
+            master=self.top,
+            text='TBD',
+            bg='blue',
+            fg='white',
+            font='Ariel 16 bold')
+        self.PL_label.grid(row=0,column=1,columnspan=1,sticky=E)
 
         # Form Labels
         width=18
@@ -533,6 +541,11 @@ class TradeProgressWin():
 
         # DATA FIELDS   
 
+    @staticmethod
+    def get_last_option_price():
+        pass
+
+        
     
     def populate_the_gui(self):
         
@@ -560,9 +573,9 @@ class TradeProgressWin():
             self.strike_price['bg']='#FF0000'
 
         # convert the expiration to datetime object and color code the entry per days from expiration
-        expiration_date = dt.datetime.strptime(self.extracted_data['expiration'],'%m/%d/%y').date()
+        option_expiration_date = dt.datetime.strptime(self.extracted_data['expiration'],'%m/%d/%y').date()
         today = dt.date.today()
-        days_to_expiration=expiration_date-today
+        days_to_expiration=option_expiration_date-today
 
         self.expiration_date['bg']=(
             '#FFFF00' if all([days_to_expiration.days<=5,days_to_expiration.days>=3]) else 
@@ -570,8 +583,28 @@ class TradeProgressWin():
             '#F5F5F5'
         )
 
+        # change the expiration format to YYYY-MM-DD
+        edate=option_expiration_date.strftime("%Y-%m-%d")  ##---> reformatted expiration date
 
+        last_option_price=StockData(ticker=self.extracted_data['ticker']).option_data(expire_date=edate,requested_data='last_option_price',strike_price=self.extracted_data['strike_price'])
 
+        self.last_price.insert(0,round(last_option_price,2))
+
+        if last_option_price>self.extracted_data['option_price']:
+            self.last_price['bg']='#7CFC00' 
+        elif last_option_price<self.extracted_data['option_price'] :
+            self.last_price['bg']='#FF0000'
+
+        # calculate the P&L
+        numShares=100  ##----> typical number of shares per contract
+        numContracts=1
+        PL=(last_option_price-self.extracted_data['option_price'])*numShares*numContracts
+        PL=round(PL,2)
+        self.PL_label['text']=f'$ {PL}'
+        self.PL_label['fg']=(
+            '#FF0000' if PL<0 else
+            '#7CFC00' if PL>0 else
+            'white')
 
 
 
