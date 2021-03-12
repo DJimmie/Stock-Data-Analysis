@@ -607,7 +607,6 @@ class TradeProgressWin():
             'white')
 
 
-
         self.score()
 
     def score(self):

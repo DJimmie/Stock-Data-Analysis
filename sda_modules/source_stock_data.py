@@ -1,4 +1,4 @@
-""" Retrieve user reqested stock data. 
+""" Retrieve user reqested stock data.
 Input--->Ticker, Start Date, End Date
 Output---> time series stock data in specied frequency (daily, weekly, etc,) as pandas, json, or csv
 """
@@ -7,8 +7,11 @@ from dependancies import *
 
 # %%
 class StockData():
-    
     def __init__(self,ticker,**kwargs):
+        """optional arguments:
+        start_date (YYYY-MM-DD)
+        end_date (YYYY-MM-DD)
+        interval"""
 
         self.ticker=ticker.upper()
 
@@ -23,9 +26,7 @@ class StockData():
         # self.get_fundamentals()
 
     def get_fundamentals(self):
-        
-        fundamentals=['sector','previousClose','ask','bid','askSize','bidSize','strikePrice','fiftyTwoWeekLow','fiftyTwoWeekHigh']
-
+        fundamentals=['sector','previousClose','ask','bid','askSize','bidSize','fiftyTwoWeekLow','fiftyTwoWeekHigh']
         fun=dict()
         for k,v in self.fdata.info.items():
             if k in fundamentals:
@@ -42,10 +43,10 @@ class StockData():
         # get historical market data
         hist = self.fdata.history(period='1y',interval=self.interval,start=self.start_date,end=self.end_date)
 
+        # make headers and index name lowercase
         hist.columns = [x.lower() for x in hist.columns]
-        
-        hist.drop(columns=['dividends','stock splits'],inplace=True)
-        # print(type(hist))
+        # hist.drop(columns=['dividends','stock splits'],inplace=True)
+        hist=hist.rename_axis("date")  
 
         return hist
 
