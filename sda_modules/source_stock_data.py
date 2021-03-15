@@ -18,6 +18,7 @@ class StockData():
         self.start_date = kwargs['start_date'] if 'start_date' in kwargs else None
         self.end_date = kwargs['end_date'] if 'end_date' in kwargs else None
         self.interval=kwargs['interval'] if 'interval' in kwargs else '1d'
+        self.period=kwargs['period'] if 'period' in kwargs else None
 
         print(self.ticker)
 
@@ -41,7 +42,11 @@ class StockData():
 
     def get_time_series_data(self):
         # get historical market data
-        hist = self.fdata.history(period='1y',interval=self.interval,start=self.start_date,end=self.end_date)
+        hist = self.fdata.history(
+            period=self.period,
+            interval=self.interval,
+            start=self.start_date,
+            end=self.end_date)
 
         # make headers and index name lowercase
         hist.columns = [x.lower() for x in hist.columns]
