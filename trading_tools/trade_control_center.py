@@ -39,7 +39,7 @@ class UserInterface():
     User Interface with fields for entering data to the database."""
 
     logging.info('UserInterface()')
-
+    u=None  ##----> Making a class variable to capture the instance of ControlCenter so that other classes can then access ControlCenter's attributes and methods.
     def __init__(self):
         """Interface build."""
         UI(None,title='MY TRADING TOOL',
@@ -48,7 +48,7 @@ class UserInterface():
         fg='yellow',
         window_height=500)
 
-        ControlCenter()
+        UserInterface.u=ControlCenter() ## ---> Assigning the class variable u to the instance of ControlCenter. There is only one instance of ControlCenter per session.
 
         mainloop()
 
@@ -305,13 +305,10 @@ class ControlCenter():
         for c,k in enumerate(open_positions):
             self.option_positions.list_box.insert(c,k)
 
-        # TradeProgressWin(data)
-
-
-
+       
 
 class TradeProgressWin():
-    """Experimental---> testing use of toplevel to house the trade progress info"""
+    """Options trade info displayed on a toplevel window"""
 
     def __init__(self,tradeType,id):
         self.tradeType=tradeType
@@ -350,17 +347,16 @@ class TradeProgressWin():
         
         print(self.data)
         print(index)
-
+        self.index=index
+        
         # using the list index, pull all values from the other key-value(list) pairs corresponding to the provided id. # place the retrieve valuse in a dict and return
         d=dict()
         for i in header:
             d[i]=self.data[i][index]
 
         print(d)
-
+        
         return d
-
-
 
     def build_gui(self):
         FONT_SIZE=16
@@ -539,14 +535,48 @@ class TradeProgressWin():
             width=width,bd=5)
         self.expiration_date.grid(row=9,column=1)
 
-        # DATA FIELDS   
+        self.close_option_btn=Buttons(
+            self.top,name='Close',
+            row=10,col=0,width=5,
+            command=lambda:self.close_out_option(),sticky=W,pady=None)
 
-    @staticmethod
-    def get_last_option_price():
-        pass
 
+    def close_out_option(self):
         
-    
+        #get and change the self.data['positions'] for the self.index
+
+        answer=tkinter.messagebox.askyesno(title='CLOSE OUT OPTION', message='DO YOU WANT TO CLOSE OUT THIS OPTION')
+        if answer==False:
+            return None
+
+        self.data['position'][self.index]='Closed'
+
+        print(self.data)
+
+        ControlCenter.dump_to_json_file(self.tradeType,self.data)
+        # dump updated dict to json
+        
+        self.populate_positions()
+        
+
+    def populate_positions(self):
+        """Resets the positions list box after removing Close out options"""
+        index_list=[]
+        for c,i in enumerate(self.data['position']):
+            if i=='Open':
+                index_list.append(c)
+
+        open_positions=[self.data['id'][x] for x in index_list]
+        print(open_positions)
+
+        UserInterface.u.option_positions.list_box.delete(0,END)
+
+        for c,k in enumerate(open_positions):
+            UserInterface.u.option_positions.list_box.insert(c,k)
+
+
+
+
     def populate_the_gui(self):
         
         self.ticker['text']=self.extracted_data['id']
@@ -611,7 +641,7 @@ class TradeProgressWin():
 
     def score(self):
 
-        self.score_frame=Frames(row=10,col=0,host=self.top,bg='#808000',relief='sunken',
+        self.score_frame=Frames(row=11,col=0,host=self.top,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='TRADE SCORE',
         fg='black',
