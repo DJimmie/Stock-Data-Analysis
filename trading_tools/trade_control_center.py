@@ -16,7 +16,7 @@ stocks_json_file=f'c:/my_python_programs/{client}/stocks.json'
 # a=WorkDirectory(client_sub_folder='options_trading',client_folder=client)
 # b=WorkDirectory(client_sub_folder='stock_trading',client_folder=client)
 
-header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id']
+header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id','type']
 if not os.path.isfile(options_json_file):
     options_data_dict=dict()
     # header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id']
@@ -62,13 +62,22 @@ class ControlCenter():
 
     def build_the_gui(self):
         """Build GUI frames and widgets"""
+
+        logging.info('ControlCenter()-->def build_the_gui')
         
          ## OPTIONS FRAME
+        logging.info('ControlCenter()-->def build_the_gui-->build options frame')
         self.options_frame=Frames(row=1,col=0,bg='#00BFFF',relief='raised',
         banner_font='Ariel 16 bold',
         banner_text='OPTION TRADES',
         fg='black',
         sticky=NW)
+
+        # self.option_type=Label(self.options_frame.F,text='CALL',bg='#32CD32',fg='yellow',font='Ariel 14 bold')
+        # self.option_type.grid(row=0,column=0,sticky=NW)
+
+        self.option_select_type=Combos(the_frame=self.options_frame.F,name='Type',
+        row=0,col=0,drop_down_list=('CALLS','PUTS'),fw=6,sticky=NW,direction='NO_LABEL') 
 
         symbol_list=self.load_json_file('options')['ticker']
         self.symbol=Combos(the_frame=self.options_frame.F,name='Symbol',
@@ -112,6 +121,7 @@ class ControlCenter():
         
 
         ## STOCKS FRAME
+        logging.info('ControlCenter()-->def build_the_gui-->build Stock Frame')
         self.stocks_frame=Frames(row=1,col=1,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='STOCK TRADES',
@@ -143,6 +153,7 @@ class ControlCenter():
         self.stock_submit_option_trade=Buttons(self.stocks_frame.F,name='Add Stock Trade',row=6,col=0,width=20,command=None,sticky=S,pady=20)
 
         ## POSITIONS FRAME
+        logging.info('ControlCenter()-->def build_the_gui-->build Positions Frame')
         self.positions_frame=Frames(row=1,col=2,bg='#D2691E',relief='raised',
         banner_font='Ariel 16 bold',
         banner_text='POSITIONS',
@@ -161,7 +172,7 @@ class ControlCenter():
         self.populate_positions('options')
 
         ## STOCK WATCH FRAME
-
+        logging.info('ControlCenter()-->def build_the_gui-->build Stock Watch Frame')
         self.stock_watch_frame=Frames(row=1,col=3,bg='#D2691E',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='STOCK WATCH',
@@ -177,6 +188,7 @@ class ControlCenter():
  
    
     def stock_calcs(self):
+        logging.info('stock_calcs')
 
         a=float(self.share_price.entry.get())
         b=int(self.num_shares.entry.get())
@@ -185,11 +197,21 @@ class ControlCenter():
         self.total_cost.entry.insert(0,c)
 
     def options_calcs(self):
+        logging.info('ControlCenter()-->def options_calcs-->bep and $100 mark calcs as user adds an option trade.')
 
-        a=float(self.strike_price.entry.get())
-        b=float(self.options_price.entry.get())
-        c=round(a+b,2)
-        d=c+1.00
+        try:
+            a=float(self.strike_price.entry.get())
+            b=float(self.options_price.entry.get())
+        except ValueError:
+            return None
+
+        if self.option_select_type.combo.get()=='CALLS':
+            c=round(a+b,2)
+            d=c+1.00
+        elif self.option_select_type.combo.get()=='PUTS':
+            c=round(a-b,2)
+            d=c-1.00
+
         self.break_even_price.entry.delete(0,'end')
         self.break_even_price.entry.insert(0,c)
         self.one_hundred_price.entry.delete(0,'end')
@@ -198,9 +220,11 @@ class ControlCenter():
 
     def options_trade_data(self):
         """Retrieves the option traded data from the GUI and adds it to the option_data dictionary."""
+        logging.info('ControlCenter()-->def options_trade_data-->User is submitting a new option trade')
 
-        header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id']
+        header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id','type']
         if not os.path.isfile(options_json_file):
+            logging.info('ControlCenter()-->def options_trade_data-->checking for options_data_dict and making it if not exist')
             options_data_dict=dict()
             for i in header:
                 options_data_dict[i]=list()
@@ -210,24 +234,44 @@ class ControlCenter():
         option_data=dict()
         ticker=self.symbol.combo.get().upper()
         option_data[ticker]={}
+        logging.info('ControlCenter()-->def options_trade_data-->pulling GUI data from Options Trades & adding to option_data dict.')
+        try:
+            option_data[ticker].update({'strike_price':float(self.strike_price.entry.get())})
+            option_data[ticker].update({'option_price':float(self.options_price.entry.get())})
+        except ValueError:
+            messagebox.showwarning('Data Entry Error','Price data must be numeric !!')
+            return None
 
-        option_data[ticker].update({'strike_price':float(self.strike_price.entry.get())})
-        option_data[ticker].update({'option_price':float(self.options_price.entry.get())})
         option_data[ticker].update({'contracts':int(self.num_contracts.entry.get())})
         option_data[ticker].update({'purchase_date':self.entry_date.get()})
         option_data[ticker].update({'expiration':self.expire_date.get()})
         option_data[ticker].update({'bep':float(self.break_even_price.entry.get())})
         option_data[ticker].update({'$100_profit':float(self.one_hundred_price.entry.get())})
         option_data[ticker].update({'position':'Open'})
+        option_data[ticker].update({'type':self.option_select_type.combo.get()})
 
         option_id=self.build_trade_id('options',option_data)
         option_data[ticker].update({'id':option_id})
 
         print(ticker)
-        print(option_data)
+        print(f'****************{option_data[ticker]}')
 
         self.option_data=option_data
 
+        # Inspect pulled data. Make sure no blanks.
+        logging.info('ControlCenter()-->def options_trade_data-->Inspect pulled data. Make sure no blanks')
+        if self.symbol.combo.get()=='':
+            messagebox.showwarning('Missing Stock Symbol','Must stock symbol in the symbol field !!')
+            return None
+
+        for k,v in self.option_data[ticker].items():
+            if (v==''):
+                print(f'{k} is blank')
+                messagebox.showwarning('Missing Information',f'{k} is blank. Please enter the {k}.')
+                return None
+
+
+        logging.info('ControlCenter()-->def options_trade_data-->adding new options trade to the options dictionary')
         a=self.load_json_file('options')
 
         print(a)
@@ -242,7 +286,6 @@ class ControlCenter():
             a.update({i:a[i]})
             print(a)
 
-        
         self.dump_to_json_file('options',a)
 
         self.populate_positions('options')
@@ -250,13 +293,16 @@ class ControlCenter():
 
     @staticmethod
     def build_trade_id(a,data):
+        logging.info('ControlCenter()-->def build_trade_id-->assemble the options trade id')
+        
         if a=='options':
             key, val = next(iter(data.items()))
             t=key
             sp=str(val['strike_price'])
             ed=val['expiration']
+            opt_type=val['type']
             space=' '
-            seq=(key,'$'+sp,ed,'CALL 100')
+            seq=(key,'$'+sp,ed,f'{opt_type} 100')
 
             option_id=space.join(seq)
 
@@ -269,10 +315,13 @@ class ControlCenter():
 
     @staticmethod
     def load_json_file(a):
+        logging.info('ControlCenter()-->def load_json_file')
         if a=='options':
             b=options_json_file
+            logging.info('ControlCenter()-->def load_json_file-->retrieving options json file')
         elif (a=='stocks'):
             b=stocks_json_file
+            logging.info('ControlCenter()-->def load_json_file-->retrieving stocks json file')
 
         with open(b, "r") as read_file:
             data = json.load(read_file)
@@ -281,6 +330,8 @@ class ControlCenter():
 
     @staticmethod
     def dump_to_json_file(a,data):
+        logging.info('ControlCenter()-->def dump_to_json_file')
+        
         if a=='options':
             b=options_json_file
         elif (a=='stocks'):
@@ -290,7 +341,10 @@ class ControlCenter():
             json.dump(data, write_file)
 
     def populate_positions(self,a):
+        logging.info('ControlCenter()-->def populate_positions-->get "Open" positions for options from "id" key')
         data=self.load_json_file(a)
+
+        # getting indexes of Open positions
         index_list=[]
         for c,i in enumerate(data['position']):
             if i=='Open':
@@ -309,6 +363,7 @@ class ControlCenter():
 
 class TradeProgressWin():
     """Options trade info displayed on a toplevel window"""
+    logging.info('TradeProgressWin()')
 
     def __init__(self,tradeType,id):
         self.tradeType=tradeType
@@ -339,6 +394,7 @@ class TradeProgressWin():
 
     def extract_trade_data(self):
         """extracting instance of trade data from the json file"""
+        logging.info('TradeProgressWin()-->def extract_trade_data')
 
         # search data['id'] for the provided id value and get the list index
         for i in self.data['id']:
@@ -359,6 +415,7 @@ class TradeProgressWin():
         return d
 
     def build_gui(self):
+        logging.info('TradeProgressWin()-->def build_gui')
         FONT_SIZE=16
         self.ticker=Label(
             master=self.top,
@@ -542,6 +599,8 @@ class TradeProgressWin():
 
 
     def close_out_option(self):
+        logging.info('TradeProgressWin()-->def close_out_option')
+        
         
         #get and change the self.data['positions'] for the self.index
 
@@ -561,6 +620,7 @@ class TradeProgressWin():
 
     def populate_positions(self):
         """Resets the positions list box after removing Close out options"""
+        logging.info('TradeProgressWin()-->def populate_positions-->Resets the positions list box after removing Close out options')
         index_list=[]
         for c,i in enumerate(self.data['position']):
             if i=='Open':
@@ -578,6 +638,7 @@ class TradeProgressWin():
 
 
     def populate_the_gui(self):
+        logging.info('TradeProgressWin()-->def populate_the_gui')
         
         self.ticker['text']=self.extracted_data['id']
         self.stock_price.insert(0,round(self.last_stock_price,2))
@@ -590,17 +651,37 @@ class TradeProgressWin():
         self.one_hundred_profit.insert(0,self.extracted_data['$100_profit'])
 
         # 
-        if self.last_stock_price>self.extracted_data['bep']:
-            self.bep['bg']='#7CFC00'
+        logging.info('TradeProgressWin()-->def populate_the_gui-->setting conditions for price field colors')
 
-        if self.last_stock_price>self.extracted_data['$100_profit']:
-            self.one_hundred_profit['bg']='#7CFC00'
+        if self.extracted_data['type']=='CALLS':
+        
+            if self.last_stock_price>self.extracted_data['bep']:
+                self.bep['bg']='#7CFC00'
 
+            if self.last_stock_price>self.extracted_data['$100_profit']:
+                self.one_hundred_profit['bg']='#7CFC00'
 
-        if self.last_stock_price>self.extracted_data['strike_price']:
-            self.strike_price['bg']='#7CFC00' 
-        elif self.last_stock_price<self.extracted_data['strike_price'] :
-            self.strike_price['bg']='#FF0000'
+            if self.last_stock_price>self.extracted_data['strike_price']:
+                self.strike_price['bg']='#7CFC00' 
+
+            elif self.last_stock_price<self.extracted_data['strike_price'] :
+                self.strike_price['bg']='#FF0000'
+
+        if self.extracted_data['type']=='PUTS':
+        
+            if self.last_stock_price<self.extracted_data['bep']:
+                self.bep['bg']='#7CFC00'
+
+            if self.last_stock_price<self.extracted_data['$100_profit']:
+                self.one_hundred_profit['bg']='#7CFC00'
+
+            if self.last_stock_price<self.extracted_data['strike_price']:
+                self.strike_price['bg']='#7CFC00' 
+
+            elif self.last_stock_price>self.extracted_data['strike_price'] :
+                self.strike_price['bg']='#FF0000'
+
+        
 
         # convert the expiration to datetime object and color code the entry per days from expiration
         option_expiration_date = dt.datetime.strptime(self.extracted_data['expiration'],'%m/%d/%y').date()
@@ -616,7 +697,11 @@ class TradeProgressWin():
         # change the expiration format to YYYY-MM-DD
         edate=option_expiration_date.strftime("%Y-%m-%d")  ##---> reformatted expiration date
 
-        last_option_price=StockData(ticker=self.extracted_data['ticker']).option_data(expire_date=edate,requested_data='last_option_price',strike_price=self.extracted_data['strike_price'])
+        last_option_price=StockData(
+            ticker=self.extracted_data['ticker']).option_data(expire_date=edate,
+            requested_data='last_option_price',
+            strike_price=self.extracted_data['strike_price'],
+            optionType=self.extracted_data['type'].lower())
 
         self.last_price.insert(0,round(last_option_price,2))
 
@@ -680,6 +765,7 @@ class TradeProgressWin():
 
 class StockCheck():
     """Retrieve trade score for selected stock"""
+    logging.info('StockCheck(): Retrieve trade score for selected stock')
     def __init__(self,ticker):
         self.tradeType='stocks'
         self.ticker=ticker.upper()
@@ -702,6 +788,7 @@ class StockCheck():
         self.score()
 
     def build_gui(self):
+        logging.info('StockCheck()-->def build_gui')
         FONT_SIZE=16
         self.ticker_label=Label(
             master=self.top,
@@ -731,7 +818,7 @@ class StockCheck():
         self.stock_price.grid(row=1,column=1)
 
     def score(self):
-
+        logging.info('StockCheck()-->def build_gui')
         self.score_frame=Frames(row=2,col=0,host=self.top,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='EVALUATION SCORE',
