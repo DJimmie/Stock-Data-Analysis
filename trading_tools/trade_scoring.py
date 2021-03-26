@@ -4,10 +4,13 @@ from dependencies import *
 import csv
 
 
-global trade_status_line, baseline_scores,last_Close
+global trade_status_line,trend_data, baseline_scores,last_Close
 trade_status_line=dict()
+trend_data=dict()
 baseline_scores=dict()
+
 last_Close=None
+
 
 
 
@@ -114,6 +117,7 @@ def GenerateIndicators(df):
 def trade_criteria_dataset(df):
 
     global last_Close
+
     # make a dataframe
     df.ta.macd(append=True)
     df.ta.rsi(append=True)
@@ -121,6 +125,11 @@ def trade_criteria_dataset(df):
     df.ta.sma(length=20,append=True)
     df.ta.sma(length=50,append=True)
     df.ta.sma(length=180,append=True)
+    df.ta.linreg(slope=True,length=3,append=True)
+    df.ta.linreg(length=3,degrees=True,append=True)
+    df.ta.linreg(length=3,tsf=True,append=True)
+    df.ta.increasing(length=2,append=True)
+
 
     df['dif_M50M180']=df['SMA_50']-df['SMA_180' ]
     df['ratio_M50M180'] = df['dif_M50M180'].div(df['dif_M50M180'].shift(1))
@@ -136,6 +145,7 @@ def trade_criteria_dataset(df):
     df.dropna(inplace=True)
 
     last_Close=df['close'][CURRENT_DATE]
+
     
     return df
 
@@ -200,7 +210,24 @@ def trade_criteria(indicator_dict):
 
     print(f'{trade_status_line}\n')
 
+    trend_indicators(indicator_dict)
+
     enthusiasm_score(trade_status_line)
+
+def trend_indicators(indicator_dict):
+    """Trend data. Includes slope of 3 period regression, angle and direction (increasing/decreasing)"""
+
+    print(f'slope--->{indicator_dict["LRm_3"]}')
+    print(f'degrees--->{indicator_dict["LR_3"]}')
+    print(f'trend direction--->{indicator_dict["INC_2"]}')
+
+    trend_data['slope']=indicator_dict["LRm_3"]
+    trend_data['degrees']=indicator_dict["LR_3"]
+    trend_data['trend_direction']=indicator_dict["INC_2"]
+
+
+
+
 
 
 def enthusiasm_score(trade_status_line):
@@ -231,9 +258,31 @@ def send_results_to_file(data,file_action='a'):
 
 
     
-
 send_results_to_file({'TRADE TRACKER REPORT':'------------>'},'w')
     
 send_results_to_file({'* BASELINE SCORES--->':baseline_scores},'a')
     
 
+def pandas_ta_help():
+    
+    # print(df.close)
+    
+    x= pprint.pformat(help(ta.increasing))
+    # degrees=df.ta.linreg(length=5,degrees=True)
+
+    # slope=df.ta.linreg(slope=True,length=3,degrees=True)
+
+    # print(f'degrees-->{degrees}')
+    # print(f'slope-->{slope}')
+    # print(df.info())
+    # print(df.head())
+
+
+    # print(f'********************************LOOK AT HELP FILE')
+    # x= pprint.pformat(help(ta.linreg))
+    # with open('pandas_ta_help.txt', 'w') as file_object:
+    #     file_object.write(x)
+    #     file_object.write('\n\n')
+
+
+# pandas_ta_help()

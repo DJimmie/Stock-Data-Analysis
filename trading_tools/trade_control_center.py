@@ -781,11 +781,15 @@ class StockCheck():
         trade_scoring.user_inputs(tradeType=self.tradeType,ticker=self.ticker)
 
         self.last_stock_price=trade_scoring.last_Close
+        self.trending_data=trade_scoring.trend_data
        
+
         self.score_data=trade_scoring.trade_status_line[self.ticker]
         print(self.score_data)
 
         self.score()
+
+        self.trend_indications()
 
     def build_gui(self):
         logging.info('StockCheck()-->def build_gui')
@@ -854,6 +858,32 @@ class StockCheck():
 
         self.trade_score_label=Label(master=self.score_frame.F,text=f'{trade_score}%',font='Ariel 12 bold',bg=bg,fg=fg)
         self.trade_score_label.grid(row=0,column=1,sticky=NW)
+
+    def trend_indications(self):
+        logging.info('StockCheck()-->def build_gui')
+        self.trend_frame=Frames(row=2,col=1,host=self.top,bg='#808000',relief='sunken',
+        banner_font='Ariel 16 bold',
+        banner_text='TREND SCORE',
+        fg='white',
+        pady=20,
+        sticky=NW)
+
+        criteria_labels=[x for x in self.trending_data.keys()]
+        criteria_values=[x for x in self.trending_data.values()]
+
+        for c,i in enumerate(criteria_labels,1):
+            if criteria_values[c-1]>0:
+                bg='#7CFC00'
+            elif criteria_values[c-1]<=0:
+                bg='#FF0000'
+            else:
+                bg='#C0C0C0'
+
+            self.labels=Label(master=self.trend_frame.F,text=f'{i}: {round(criteria_values[c-1],3)}',font='Ariel 12 bold',bg=bg)
+            self.labels.grid(row=c,column=0,sticky=NW)
+
+
+
 
 
 
