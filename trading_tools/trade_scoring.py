@@ -49,7 +49,8 @@ def user_inputs(tradeType,ticker,**kwargs):
     inputs={
     'stock_list':my_stocks[tradeType],
     'start_date':None,
-    'stop_date':None
+    'stop_date':None,
+    'interval':None
     }
 
     today = dt.date.today()
@@ -77,7 +78,9 @@ def retrieve_OHLC_data(inputs):
         symbol = i.upper() 
         stock_name=symbol
 
-        stock =pdr.get_data_yahoo(symbol)[inputs['start_date']:inputs['stop_date']]
+        stock =pdr.get_data_yahoo(symbol,interval="d")[inputs['start_date']:inputs['stop_date']]
+
+        print(f'---------> {stock.head()}')
         
         if len(stock)<180:
             print(len(stock))
@@ -95,11 +98,16 @@ def GenerateIndicators(df):
 
     df=trade_criteria_dataset(df)
 
-    print(last_Close)
+    # df.resample('M').mean()
 
-    print(df.head())
+    # print(f'**************{df.head()}')
 
-    print(df.tail())
+
+    # print(last_Close)
+
+    # print(df.head())
+
+    # print(df.tail())
 
     send_results_to_file({'Ticker':symbol,'dataset':df.tail()},'a')
 
@@ -129,7 +137,11 @@ def trade_criteria_dataset(df):
     df.ta.linreg(length=3,degrees=True,append=True)
     df.ta.linreg(length=3,tsf=True,append=True)
     df.ta.increasing(length=2,append=True)
-
+    df.ta.roc(length=2,append=True)
+    df.ta.psl(length=3,append=True)
+    df.ta.cdl_doji(length=3,scalar=1,append=True)
+    df.ta.true_range(drift=1,append=True)
+    df.ta.zscore(length=30,std=1,append=True)
 
     df['dif_M50M180']=df['SMA_50']-df['SMA_180' ]
     df['ratio_M50M180'] = df['dif_M50M180'].div(df['dif_M50M180'].shift(1))
@@ -147,6 +159,8 @@ def trade_criteria_dataset(df):
     last_Close=df['close'][CURRENT_DATE]
 
     
+
+
     return df
 
 def trade_criteria(indicator_dict):
@@ -217,15 +231,18 @@ def trade_criteria(indicator_dict):
 def trend_indicators(indicator_dict):
     """Trend data. Includes slope of 3 period regression, angle and direction (increasing/decreasing)"""
 
-    print(f'slope--->{indicator_dict["LRm_3"]}')
-    print(f'degrees--->{indicator_dict["LR_3"]}')
-    print(f'trend direction--->{indicator_dict["INC_2"]}')
+    # print(f'slope--->{indicator_dict["LRm_3"]}')
+    # print(f'degrees--->{indicator_dict["LR_3"]}')
+    # print(f'trend direction--->{indicator_dict["INC_2"]}')
 
     trend_data['slope']=indicator_dict["LRm_3"]
     trend_data['degrees']=indicator_dict["LR_3"]
     trend_data['trend_direction']=indicator_dict["INC_2"]
-
-
+    trend_data['roc']=indicator_dict["ROC_2"]
+    trend_data['psl']=indicator_dict["PSL_3"]
+    trend_data['doji']=indicator_dict["CDL_DOJI_3_0.1"]
+    trend_data['true_range']=indicator_dict["TRUERANGE_1"]
+    trend_data['zscore']=indicator_dict["Z_30"]
 
 
 
@@ -267,17 +284,8 @@ def pandas_ta_help():
     
     # print(df.close)
     
-    x= pprint.pformat(help(ta.increasing))
-    # degrees=df.ta.linreg(length=5,degrees=True)
-
-    # slope=df.ta.linreg(slope=True,length=3,degrees=True)
-
-    # print(f'degrees-->{degrees}')
-    # print(f'slope-->{slope}')
-    # print(df.info())
-    # print(df.head())
-
-
+    x= pprint.pformat(help(ta.obv))
+    
     # print(f'********************************LOOK AT HELP FILE')
     # x= pprint.pformat(help(ta.linreg))
     # with open('pandas_ta_help.txt', 'w') as file_object:

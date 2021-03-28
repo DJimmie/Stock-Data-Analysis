@@ -56,8 +56,10 @@ class UserInterface():
 class ControlCenter():
     """Build the GUI and implement it's methods"""
     logging.info('ControlCenter()')
-
+    trade_watch_date=None
     def __init__(self):
+
+        
         self.build_the_gui()
 
     def build_the_gui(self):
@@ -185,6 +187,11 @@ class ControlCenter():
 
         self.swTicker.combo.bind("<Return>", lambda x: StockCheck(self.swTicker.combo.get()))
         self.swTicker.combo.bind("<<ComboboxSelected>>",lambda x: StockCheck(self.swTicker.combo.get()))
+
+        self.trade_watch_date=ControlCenter.trade_watch_date=DateEntry(self.stock_watch_frame.F,font='Ariel 12 bold',highlightbackground='pink',highlightthickness=5)
+        self.trade_watch_date.grid(row=1,column=2,sticky=NW)
+
+
  
    
     def stock_calcs(self):
@@ -778,7 +785,7 @@ class StockCheck():
 
         self.build_gui()
 
-        trade_scoring.user_inputs(tradeType=self.tradeType,ticker=self.ticker)
+        trade_scoring.user_inputs(tradeType=self.tradeType,ticker=self.ticker,stop_date=ControlCenter.trade_watch_date.get())
 
         self.last_stock_price=trade_scoring.last_Close
         self.trending_data=trade_scoring.trend_data
@@ -821,8 +828,17 @@ class StockCheck():
             width=width,bd=5)
         self.stock_price.grid(row=1,column=1)
 
+        self.day_of_trade=Label(
+            master=self.top,
+            text=ControlCenter.trade_watch_date.get(),
+            bg='black',
+            fg='white',
+            font='Ariel 16 bold')
+        self.day_of_trade.grid(row=0,column=1,columnspan=1)
+
     def score(self):
         logging.info('StockCheck()-->def build_gui')
+
         self.score_frame=Frames(row=2,col=0,host=self.top,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='EVALUATION SCORE',
