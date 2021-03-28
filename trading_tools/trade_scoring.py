@@ -107,7 +107,7 @@ def GenerateIndicators(df):
 
     # print(df.head())
 
-    # print(df.tail())
+    print(df.tail())
 
     send_results_to_file({'Ticker':symbol,'dataset':df.tail()},'a')
 
@@ -142,6 +142,8 @@ def trade_criteria_dataset(df):
     df.ta.cdl_doji(length=3,scalar=1,append=True)
     df.ta.true_range(drift=1,append=True)
     df.ta.zscore(length=30,std=1,append=True)
+    df.ta.obv(append=True)
+
 
     df['dif_M50M180']=df['SMA_50']-df['SMA_180' ]
     df['ratio_M50M180'] = df['dif_M50M180'].div(df['dif_M50M180'].shift(1))
@@ -153,6 +155,8 @@ def trade_criteria_dataset(df):
     df['ratio_M20M50'] = df['dif_M20M50'].div(df['dif_M20M50'].shift(1))
 
     df['ratio_MACDh_12_26_9'] = df['MACDh_12_26_9'].div(df['MACDh_12_26_9'].shift(1))
+
+    df['obv_pct_delta']=(df['OBV'].diff(2))/(df['OBV'].iloc[-3])
 
     df.dropna(inplace=True)
 
@@ -243,6 +247,8 @@ def trend_indicators(indicator_dict):
     trend_data['doji']=indicator_dict["CDL_DOJI_3_0.1"]
     trend_data['true_range']=indicator_dict["TRUERANGE_1"]
     trend_data['zscore']=indicator_dict["Z_30"]
+    trend_data['obv_pct_delta']=round(indicator_dict["obv_pct_delta"]*100,2)
+
 
 
 
