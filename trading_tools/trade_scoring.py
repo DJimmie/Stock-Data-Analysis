@@ -244,7 +244,7 @@ def trend_indicators(indicator_dict):
     # print(f'trend direction--->{indicator_dict["INC_2"]}')
 
     trend_data['slope']=indicator_dict["LRm_3"]
-    trend_data['degrees']=indicator_dict["LR_3"]
+    trend_data['trend_estimate']=indicator_dict["LR_3"]
     trend_data['trend_direction']=indicator_dict["INC_2"]
     trend_data['roc']=indicator_dict["ROC_2"]
     trend_data['psl']=indicator_dict["PSL_3"]
