@@ -158,6 +158,10 @@ def trade_criteria_dataset(df):
 
     df['obv_pct_delta']=(df['OBV'].diff(2))/(df['OBV'].iloc[-3])
 
+    df['obv_pct_slope']=(df['OBV'].diff(2)/(1e+06))/3
+
+    df['sma_5_slope']=df['SMA_5'].diff(2)/2
+
     df.dropna(inplace=True)
 
     last_Close=df['close'][CURRENT_DATE]
@@ -248,6 +252,8 @@ def trend_indicators(indicator_dict):
     trend_data['true_range']=indicator_dict["TRUERANGE_1"]
     trend_data['zscore']=indicator_dict["Z_30"]
     trend_data['obv_pct_delta']=round(indicator_dict["obv_pct_delta"]*100,2)
+    trend_data['obv_pct_slope']=round(indicator_dict["obv_pct_slope"],3)
+    trend_data['sma_5_slope']=round(indicator_dict["sma_5_slope"],3)
 
 
 
