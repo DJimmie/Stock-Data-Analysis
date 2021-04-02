@@ -128,3 +128,8 @@ dmypy.json
 # Pyre type checker
 .pyre/
 archives/
+
+# My program generated txt files
+long_2_results.txt
+long_3_results.txt
+output.txt
