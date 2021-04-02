@@ -165,15 +165,11 @@ def trade_criteria_dataset(df):
     df['macd_slope']=df['MACD_12_26_9'].diff(2)/2
 
 
-
-
     df.dropna(inplace=True)
 
     last_Close=df['close'][CURRENT_DATE]
 
     
-
-
     return df
 
 def trade_criteria(indicator_dict):
