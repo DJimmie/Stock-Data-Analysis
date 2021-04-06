@@ -41,12 +41,11 @@ class Data():
 
 
     def data_clean_up(self):
-        keep=set(['close', 'RSI_14', 
+        keep=set(['close','RSI_14', 
        'INC_2', 'ROC_2', 'PSL_3', 'CDL_DOJI_3_0.1',
        'TRUERANGE_1', 'Z_30','dif_M50M180', 'ratio_M50M180',
        'dif_M5M20', 'ratio_M5M20', 'dif_M20M50', 'ratio_M20M50',
-       'ratio_MACDh_12_26_9', 'obv_pct_delta', 'obv_pct_slope', 'sma_5_slope',
-       'macd_slope'])
+       'ratio_MACDh_12_26_9', 'obv_pct_delta'])
 
         all_headers=set(['high', 'low', 'open', 'close', 'volume', 'adj_close', 'MACD_12_26_9',
        'MACDh_12_26_9', 'MACDs_12_26_9', 'RSI_14', 'SMA_5', 'SMA_20', 'SMA_50',
@@ -63,7 +62,7 @@ class Data():
         print(self.df.head())
 
         # remove datetime index
-        self.df.reset_index(drop=False, inplace=True)
+        self.df.reset_index(drop=True, inplace=True)
         print(self.df.head())
 
         # get the price (close) delta
@@ -75,9 +74,11 @@ class Data():
 
         self.df.dropna(inplace=True)
 
+        self.df=self.df.sample(frac=1)
+
         # pass data to storage
 
-        self.df.to_csv('data.csv',index=True)
+        self.df.to_csv('data.csv',index=False)
 
 
 
@@ -102,7 +103,9 @@ class Data():
     
 # %%
 
-ge=Data('ge')
+# ge=Data('ge')
+
+tsla=Data('tsla')
 
 
 
