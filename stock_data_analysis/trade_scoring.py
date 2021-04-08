@@ -106,7 +106,7 @@ def GenerateIndicators(df):
 
     # print(df.head())
 
-    print(df.tail())
+    print(f'TAIL----->\n{df.tail()}')
 
     send_results_to_file({'Ticker':symbol,'dataset':df.tail()},'a')
 
@@ -144,31 +144,36 @@ def trade_criteria_dataset(df):
     df.ta.obv(append=True)
 
 
+    ratio_period=2
     df['dif_M50M180']=df['SMA_50']-df['SMA_180' ]
-    df['ratio_M50M180'] = df['dif_M50M180'].div(df['dif_M50M180'].shift(1))
+    df['ratio_M50M180'] = df['dif_M50M180'].div(df['dif_M50M180'].shift(ratio_period))
 
     df['dif_M5M20']=df['SMA_5']-df['SMA_20' ]
-    df['ratio_M5M20'] = df['dif_M5M20'].div(df['dif_M5M20'].shift(1))
+    df['ratio_M5M20'] = df['dif_M5M20'].div(df['dif_M5M20'].shift(ratio_period))
 
     df['dif_M20M50']=df['SMA_20']-df['SMA_50' ]
-    df['ratio_M20M50'] = df['dif_M20M50'].div(df['dif_M20M50'].shift(1))
+    df['ratio_M20M50'] = df['dif_M20M50'].div(df['dif_M20M50'].shift(ratio_period))
 
-    df['ratio_MACDh_12_26_9'] = df['MACDh_12_26_9'].div(df['MACDh_12_26_9'].shift(1))
+    df['ratio_MACDh_12_26_9'] = df['MACDh_12_26_9'].div(df['MACDh_12_26_9'].shift(ratio_period))
 
-    df['obv_pct_delta']=(df['OBV'].diff(2))/(df['OBV'].iloc[-3])
+    # df['obv_pct_delta']=(df['OBV'].diff(2))/(df['OBV'].iloc[-3])
+    df['obv_pct_delta']=df['OBV'].pct_change(periods=2)
 
-    df['obv_pct_slope']=(df['OBV'].diff(2)/(1e+06))/3
+
+    df['obv_pct_slope']=(df['OBV'].diff(2)*(1e-06))/2
 
     df['sma_5_slope']=df['SMA_5'].diff(2)/2
 
     df['macd_slope']=df['MACD_12_26_9'].diff(2)/2
 
+    df['LRm_3_pct_delta']=df['LRm_3'].pct_change(periods=2)
+
+    df.replace([np.inf, -np.inf], np.nan, inplace=True)
 
     df.dropna(inplace=True)
 
     last_Close=df['close'][CURRENT_DATE]
 
-    
     return df
 
 def trade_criteria(indicator_dict):

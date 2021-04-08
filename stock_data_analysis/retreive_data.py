@@ -20,11 +20,12 @@ class Data():
         self.df=self.request_data()
         print(self.df.head())
         print(self.df.info())
+        print(self.df.tail())
 
         self.data_clean_up()
         print(self.df.head())
         print(self.df.info())
-        print(self.df.tail(20))
+        print(self.df.tail())
 
 
 
@@ -43,9 +44,9 @@ class Data():
     def data_clean_up(self):
         keep=set(['close','RSI_14', 
        'INC_2', 'ROC_2', 'PSL_3', 'CDL_DOJI_3_0.1',
-       'TRUERANGE_1', 'Z_30','dif_M50M180', 'ratio_M50M180',
-       'dif_M5M20', 'ratio_M5M20', 'dif_M20M50', 'ratio_M20M50',
-       'ratio_MACDh_12_26_9', 'obv_pct_delta'])
+       'TRUERANGE_1', 'Z_30', 'ratio_M50M180',
+       'ratio_M5M20', 'ratio_M20M50',
+       'ratio_MACDh_12_26_9', 'obv_pct_delta','slope_pct_delta'])
 
         all_headers=set(['high', 'low', 'open', 'close', 'volume', 'adj_close', 'MACD_12_26_9',
        'MACDh_12_26_9', 'MACDs_12_26_9', 'RSI_14', 'SMA_5', 'SMA_20', 'SMA_50',
@@ -53,7 +54,7 @@ class Data():
        'TRUERANGE_1', 'Z_30', 'OBV', 'dif_M50M180', 'ratio_M50M180',
        'dif_M5M20', 'ratio_M5M20', 'dif_M20M50', 'ratio_M20M50',
        'ratio_MACDh_12_26_9', 'obv_pct_delta', 'obv_pct_slope', 'sma_5_slope',
-       'macd_slope'])
+       'macd_slope','slope_pct_delta'])
 
         required_headers=list(all_headers.difference(keep))
 
@@ -105,11 +106,17 @@ class Data():
 
 # ge=Data('ge')
 
-tsla=Data('tsla')
+# tsla=Data('tsla')
+
+# apha=Data('apha')
+
+mro=Data('mro')
 
 
 
 
 
+
+# %%
 
 # %%
