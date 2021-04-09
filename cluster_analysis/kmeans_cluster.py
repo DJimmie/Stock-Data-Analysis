@@ -58,10 +58,10 @@ def features_breakdown(the_data,feature_list,header):
             L2_data=the_data[(the_data[header]==2)]
             L3_data=the_data[(the_data[header]==3)]
 
-            sns.distplot(L0_data[i],kde=True)
-            sns.distplot(L1_data[i],kde=True)
-            sns.distplot(L2_data[i],kde=True)
-            sns.distplot(L3_data[i],kde=True)
+            sns.distplot(L0_data[i],kde=True,label='0')
+            sns.distplot(L1_data[i],kde=True,label='1')
+            sns.distplot(L2_data[i],kde=True,label='2')
+            sns.distplot(L3_data[i],kde=True,label='3')
           
 
 #         plt.figure(figsize=(15,12))
@@ -74,7 +74,7 @@ def clustering(data,features):
 
     print(X[0:5])
 
-    kmeans = KMeans(n_clusters=3, random_state=0).fit(X)
+    kmeans = KMeans(n_clusters=4, random_state=0).fit(X)
 
     kmeans_results=kmeans.labels_
     
@@ -84,28 +84,29 @@ def clustering(data,features):
 
     print(f'Centroids--->\n{the_centroids}')
 
-    plt.scatter(the_centroids[:,0],the_centroids[:,1],marker='o',s=60,c='black')
+    if length_of_feature_list==2:
+        plt.scatter(the_centroids[:,0],the_centroids[:,1],marker='o',s=60,c='black')
 
-    for i in range(0,len(kmeans_results)):
-        if (kmeans_results[i]==0):
-            plt.scatter(x1[i],x2[i],marker='D',color='purple',s=30)
-    #         print (x1[i])
-        if (kmeans_results[i]==1):
-            plt.scatter(x1[i],x2[i],marker='+',color='green',s=30)
-    #         print (x1[i])
-        if (kmeans_results[i]==2):
-            plt.scatter(x1[i],x2[i],marker='*',color='blue',s=30)
-    #         print (x1[i])
-        if (kmeans_results[i]==3):
-            plt.scatter(x1[i],x2[i],marker='*',color='red',s=30)
-    #         print (x1[i])           
-
+        for i in range(0,len(kmeans_results)):
+            if (kmeans_results[i]==0):
+                plt.scatter(x1[i],x2[i],marker='D',color='purple',s=30)
+        #         print (x1[i])
+            if (kmeans_results[i]==1):
+                plt.scatter(x1[i],x2[i],marker='+',color='green',s=30)
+        #         print (x1[i])
+            if (kmeans_results[i]==2):
+                plt.scatter(x1[i],x2[i],marker='*',color='blue',s=30)
+        #         print (x1[i])
+            if (kmeans_results[i]==3):
+                plt.scatter(x1[i],x2[i],marker='*',color='red',s=30)
+        #         print (x1[i])           
+    
 
     data['clusters']=kmeans_results
 
     print(data.head())
 
-    print(data.groupby([data['PL'],data['clusters']])['RSI_14'].count())
+    # print(data.groupby([data['PL'],data['clusters']])['RSI_14'].count())
 
 
     plt.show()
@@ -121,8 +122,11 @@ data_file=r'C:\Users\dowdj\OneDrive\Documents\GitHub\Stock-Data-Analysis\stock_d
 
 data=get_data(data_file)
 
-feature_list=['RSI_14','ROC_2']
-scatter(data,feature_list[0],feature_list[1])
+feature_list=['RSI_14','ratio_MACDh_12_26_9']
+length_of_feature_list=len(feature_list)
+
+if length_of_feature_list==2:
+    scatter(data,feature_list[0],feature_list[1])
 
 features_breakdown(data,feature_list,'PL')
 
