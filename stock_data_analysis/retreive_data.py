@@ -46,7 +46,8 @@ class Data():
        'INC_2', 'ROC_2', 'PSL_3', 'CDL_DOJI_3_0.1',
        'TRUERANGE_1', 'Z_30', 'ratio_M50M180',
        'ratio_M5M20', 'ratio_M20M50',
-       'ratio_MACDh_12_26_9', 'obv_pct_delta','LRm_3_pct_delta','tr_pct_delta'])
+       'ratio_MACDh_12_26_9', 'obv_pct_delta',
+       'LRm_3_pct_delta','tr_pct_delta','M_ovr_S'])
 
         all_headers=set(['high', 'low', 'open', 'close', 'volume', 'adj_close', 'MACD_12_26_9',
        'MACDh_12_26_9', 'MACDs_12_26_9', 'RSI_14', 'SMA_5', 'SMA_20', 'SMA_50',
@@ -106,11 +107,11 @@ class Data():
 
 # ge=Data('ge')
 
-# tsla=Data('tsla')
+tsla=Data('tsla')
 
 # apha=Data('apha')
 
-mro=Data('mro')
+# mro=Data('mro')
 
 
 

@@ -170,6 +170,9 @@ def trade_criteria_dataset(df):
 
     df['tr_pct_delta']=df['TRUERANGE_1'].pct_change(periods=2)
 
+
+    df['M_ovr_S']=np.where(df['MACD_12_26_9']>=df['MACDs_12_26_9'],1,0)
+
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
 
     df.dropna(inplace=True)
