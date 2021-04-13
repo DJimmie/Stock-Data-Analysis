@@ -266,7 +266,14 @@ def trend_indicators(indicator_dict):
     trend_data['sma_5_slope']=round(indicator_dict["sma_5_slope"],3)
     trend_data['macd_slope']=round(indicator_dict["macd_slope"],3)
 
+    dump_to_json_file(trend_data)
 
+
+    
+def dump_to_json_file(data_dict):
+    
+    with open('model_input.json', "w") as write_file:
+        json.dump(data_dict, write_file)
 
 
 
