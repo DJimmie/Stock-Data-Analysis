@@ -28,9 +28,6 @@ class Data():
         print(self.df.tail())
 
 
-
-
-
     def request_data(self):
 
         trade_scoring.user_inputs(self.ticker)
@@ -81,10 +78,6 @@ class Data():
         # pass data to storage
 
         self.df.to_csv('data.csv',index=False)
-
-
-
-
 
 
     @staticmethod

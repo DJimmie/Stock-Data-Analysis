@@ -253,18 +253,21 @@ def trend_indicators(indicator_dict):
     # print(f'degrees--->{indicator_dict["LR_3"]}')
     # print(f'trend direction--->{indicator_dict["INC_2"]}')
 
-    trend_data['slope']=indicator_dict["LRm_3"]
-    trend_data['trend_estimate']=indicator_dict["LR_3"]
+    trend_data["LRm_3"]=indicator_dict["LRm_3"]
+    trend_data["LR_3"]=indicator_dict["LR_3"]
     trend_data['trend_direction']=indicator_dict["INC_2"]
-    trend_data['roc']=indicator_dict["ROC_2"]
-    trend_data['psl']=indicator_dict["PSL_3"]
-    trend_data['doji']=indicator_dict["CDL_DOJI_3_0.1"]
-    trend_data['true_range']=indicator_dict["TRUERANGE_1"]
-    trend_data['zscore']=indicator_dict["Z_30"]
+    trend_data['ROC_2']=indicator_dict["ROC_2"]
+    trend_data['PSL_3']=indicator_dict["PSL_3"]
+    trend_data['CDL_DOJI_3_0.1']=indicator_dict["CDL_DOJI_3_0.1"]
+    trend_data['TRUERANGE_1']=indicator_dict["TRUERANGE_1"]
+    trend_data['Z_30']=indicator_dict["Z_30"]
     trend_data['obv_pct_delta']=round(indicator_dict["obv_pct_delta"]*100,2)
     trend_data['obv_pct_slope']=round(indicator_dict["obv_pct_slope"],3)
     trend_data['sma_5_slope']=round(indicator_dict["sma_5_slope"],3)
     trend_data['macd_slope']=round(indicator_dict["macd_slope"],3)
+    trend_data['RSI_14']=round(indicator_dict["RSI_14"],3)
+    trend_data['ratio_MACDh_12_26_9']=indicator_dict["ratio_MACDh_12_26_9"]
+    trend_data['ratio_M20M50']=indicator_dict["ratio_M20M50"]
 
     dump_to_json_file(trend_data)
 

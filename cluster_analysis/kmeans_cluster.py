@@ -34,8 +34,6 @@ def standardize_data(df,scale_to_range=True):
         df_standardized=(df-df.mean())/df.std()
         
 
-    
-
     return df_standardized
 
 
@@ -194,6 +192,34 @@ def clustering(data,features):
     return data,kmeans
 
 
+def load_json_file():
+    
+    d=r'C:\Users\dowdj\OneDrive\Documents\GitHub\Stock-Data-Analysis\stock_data_analysis\model_input.json'
+    with open(d, "r") as read_file:
+        data = json.load(read_file)
+
+    return data
+
+def the_model(kmeans_results,feature_list):
+
+    # get the data
+    data_dict=load_json_file()
+
+    model_inputs=[data_dict[i] for i in feature_list]
+
+    print(model_inputs)
+
+    # feed data to model and get cluster
+
+    results=kmeans_results.predict([model_inputs])
+
+    return results
+
+
+
+
+
+
 
 # %%
 
@@ -202,9 +228,9 @@ data_file=r'C:\Users\dowdj\OneDrive\Documents\GitHub\Stock-Data-Analysis\stock_d
 
 data=get_data(data_file,normalize_data=False)
 
-feature_list=['RSI_14','M_ovr_S','Z_30','PSL_3','ROC_2']
-feature_list=['RSI_14','ratio_M5M20']
-feature_list=['RSI_14','Z_30','ROC_2','M_ovr_S','obv_pct_delta','ratio_MACDh_12_26_9']
+# feature_list=['RSI_14','M_ovr_S','Z_30','PSL_3','ROC_2']
+feature_list=['RSI_14','ROC_2']
+# feature_list=['RSI_14','Z_30','ROC_2','M_ovr_S','obv_pct_delta','ratio_MACDh_12_26_9']
 # feature_list=['RSI_14','ratio_M5M20','ratio_MACDh_12_26_9','PSL_3','M_ovr_S']
 length_of_feature_list=len(feature_list)
 
@@ -220,6 +246,10 @@ data,kmeans_results=clustering(data,feature_list)
 features_breakdown(data,feature_list,'clusters')
 
 features_breakdown(data,['clusters'],'PL')
+
+assigned_cluster=the_model(kmeans_results,feature_list)
+
+print(assigned_cluster)
 
 
 
