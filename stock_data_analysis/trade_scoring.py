@@ -173,6 +173,12 @@ def trade_criteria_dataset(df):
 
     df['M_ovr_S']=np.where(df['MACD_12_26_9']>=df['MACDs_12_26_9'],1,0)
 
+    df['sma5_ovr_sma20']=np.where(df['SMA_5']>=df['SMA_20'],1,0)
+    df['sma20_ovr_sma50']=np.where(df['SMA_20']>=df['SMA_50'],1,0)
+    df['sma50_ovr_sma180']=np.where(df['SMA_50']>=df['SMA_180'],1,0)
+
+
+
     df.replace([np.inf, -np.inf], np.nan, inplace=True)
 
     df.dropna(inplace=True)
@@ -268,8 +274,15 @@ def trend_indicators(indicator_dict):
     trend_data['RSI_14']=round(indicator_dict["RSI_14"],3)
     trend_data['ratio_MACDh_12_26_9']=indicator_dict["ratio_MACDh_12_26_9"]
     trend_data['ratio_M20M50']=indicator_dict["ratio_M20M50"]
+    trend_data['M_ovr_S']=indicator_dict['M_ovr_S']
+    trend_data['LRm_3_pct_delta']=indicator_dict['LRm_3_pct_delta']
+    trend_data['tr_pct_delta']=indicator_dict['tr_pct_delta']
 
-    dump_to_json_file(trend_data)
+    # for k,v in indicator_dict.items():
+    #     trend_data[k]=indicator_dict[k]
+
+    # dump_to_json_file(trend_data)
+    dump_to_json_file(indicator_dict)
 
 
     

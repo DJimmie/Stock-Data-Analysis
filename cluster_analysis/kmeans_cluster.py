@@ -3,6 +3,7 @@
 from dependancies import *
 from sklearn.cluster import KMeans
 
+
 # %%
 def get_data(csv_file,normalize_data=False):
     """RETRIEVING THE DATA in CSV FORMAT"""
@@ -70,9 +71,13 @@ def scatter(df,a,b):
 
 def features_breakdown(the_data,feature_list,header):
     
+    bins=20
+    hist=True
+    kde=True
+    
     num_unique=the_data[header].nunique()
     for i in feature_list:
-        group_by_output=the_data.groupby([(the_data[header])])[i].agg(['min','max','mean','std'])
+        group_by_output=the_data.groupby([(the_data[header])])[i].agg(['min','max','mean','std','sum','count'])
         print('Output breakdown for %s:' %(i) ,'\n', group_by_output.T,'\n')
         
         
@@ -81,17 +86,17 @@ def features_breakdown(the_data,feature_list,header):
             L0_data=the_data[(the_data[header]==0)]
             L1_data=the_data[(the_data[header]==1)]
             
-            no=sns.distplot(L0_data[i],kde=True,label='0')
-            yes=sns.distplot(L1_data[i],kde=True,label='1')
+            no=sns.distplot(L0_data[i],kde=True,hist=hist,bins=bins,fit=None,label='0')
+            yes=sns.distplot(L1_data[i],kde=True,hist=hist,bins=bins,fit=None,label='1')
         
         if (num_unique==3):
             L0_data=the_data[(the_data[header]==0)]
             L1_data=the_data[(the_data[header]==1)]
             L2_data=the_data[(the_data[header]==2)]
            
-            sns.distplot(L0_data[i],kde=True,label='0')
-            sns.distplot(L1_data[i],kde=True,label='1')
-            sns.distplot(L2_data[i],kde=True,label='2')
+            sns.distplot(L0_data[i],kde=True,hist=hist,bins=bins,label='0')
+            sns.distplot(L1_data[i],kde=True,hist=hist,bins=bins,label='1')
+            sns.distplot(L2_data[i],kde=True,hist=hist,bins=bins,label='2')
             
             
         if (num_unique==4):
@@ -100,10 +105,10 @@ def features_breakdown(the_data,feature_list,header):
             L2_data=the_data[(the_data[header]==2)]
             L3_data=the_data[(the_data[header]==3)]
 
-            sns.distplot(L0_data[i],kde=True,label='0')
-            sns.distplot(L1_data[i],kde=True,label='1')
-            sns.distplot(L2_data[i],kde=True,label='2')
-            sns.distplot(L3_data[i],kde=True,label='3')
+            sns.distplot(L0_data[i],kde=True,hist=hist,bins=bins,label='0')
+            sns.distplot(L1_data[i],kde=True,hist=hist,bins=bins,label='1')
+            sns.distplot(L2_data[i],kde=True,hist=hist,bins=bins,label='2')
+            sns.distplot(L3_data[i],kde=True,hist=hist,bins=bins,label='3')
 
 
         if (num_unique==5):
@@ -113,11 +118,11 @@ def features_breakdown(the_data,feature_list,header):
             L3_data=the_data[(the_data[header]==3)]
             L4_data=the_data[(the_data[header]==4)]
 
-            sns.distplot(L0_data[i],kde=True,label='0')
-            sns.distplot(L1_data[i],kde=True,label='1')
-            sns.distplot(L2_data[i],kde=True,label='2')
-            sns.distplot(L3_data[i],kde=True,label='3')
-            sns.distplot(L4_data[i],kde=True,label='4')
+            sns.distplot(L0_data[i],kde=True,hist=hist,bins=bins,label='0')
+            sns.distplot(L1_data[i],kde=True,hist=hist,bins=bins,label='1')
+            sns.distplot(L2_data[i],kde=True,hist=hist,bins=bins,label='2')
+            sns.distplot(L3_data[i],kde=True,hist=hist,bins=bins,label='3')
+            sns.distplot(L4_data[i],kde=True,hist=hist,bins=bins,label='4')
           
 
 #         plt.figure(figsize=(15,12))
@@ -151,7 +156,7 @@ def clustering(data,features):
 
     print(X[0:5])
 
-    kmeans = KMeans(n_clusters=4, random_state=0).fit(X)
+    kmeans = KMeans(n_clusters=3, random_state=0).fit(X)
 
     kmeans_results=kmeans.labels_
     
@@ -228,10 +233,31 @@ data_file=r'C:\Users\dowdj\OneDrive\Documents\GitHub\Stock-Data-Analysis\stock_d
 
 data=get_data(data_file,normalize_data=False)
 
-# feature_list=['RSI_14','M_ovr_S','Z_30','PSL_3','ROC_2']
-feature_list=['RSI_14','ROC_2']
-# feature_list=['RSI_14','Z_30','ROC_2','M_ovr_S','obv_pct_delta','ratio_MACDh_12_26_9']
-# feature_list=['RSI_14','ratio_M5M20','ratio_MACDh_12_26_9','PSL_3','M_ovr_S']
+
+# feature_list=[
+#     'RSI_14',
+#     'ROC_2',
+#     'Z_30',
+#     'obv_pct_delta',
+#     'M_ovr_S',
+#     'ratio_MACDh_12_26_9',
+#     'LRm_3_pct_delta',
+#     'tr_pct_delta',
+#     'sma5_ovr_sma20',
+#     'ratio_M5M20',
+#     'sma50_ovr_sma180',
+#     'ratio_M50M180',
+#     'sma20_ovr_sma50',
+#     'ratio_M20M50']
+
+feature_list=[
+    'M_ovr_S',
+    'sma5_ovr_sma20',
+    'sma50_ovr_sma180',
+    'sma20_ovr_sma50',
+    'RSI_14']
+
+
 length_of_feature_list=len(feature_list)
 
 if length_of_feature_list==2:
@@ -246,6 +272,8 @@ data,kmeans_results=clustering(data,feature_list)
 features_breakdown(data,feature_list,'clusters')
 
 features_breakdown(data,['clusters'],'PL')
+
+features_breakdown(data,['PL'],'clusters')
 
 assigned_cluster=the_model(kmeans_results,feature_list)
 
