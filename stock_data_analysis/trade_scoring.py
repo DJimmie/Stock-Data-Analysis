@@ -166,7 +166,7 @@ def trade_criteria_dataset(df):
 
     df['macd_slope']=df['MACD_12_26_9'].diff(2)/2
 
-    df['LRm_3_pct_delta']=df['LRm_3'].pct_change(periods=1)
+    df['LRm_3_pct_delta']=df['LRm_3'].pct_change(periods=2)
 
     df['tr_pct_delta']=df['TRUERANGE_1'].pct_change(periods=2)
 
@@ -176,6 +176,8 @@ def trade_criteria_dataset(df):
     df['sma5_ovr_sma20']=np.where(df['SMA_5']>=df['SMA_20'],1,0)
     df['sma20_ovr_sma50']=np.where(df['SMA_20']>=df['SMA_50'],1,0)
     df['sma50_ovr_sma180']=np.where(df['SMA_50']>=df['SMA_180'],1,0)
+
+    df['Z_30_pct_delta']=df['Z_30'].pct_change(periods=2)
 
 
 
@@ -277,6 +279,8 @@ def trend_indicators(indicator_dict):
     trend_data['M_ovr_S']=indicator_dict['M_ovr_S']
     trend_data['LRm_3_pct_delta']=indicator_dict['LRm_3_pct_delta']
     trend_data['tr_pct_delta']=indicator_dict['tr_pct_delta']
+    trend_data['Z_30_pct_delta']=indicator_dict['Z_30_pct_delta']
+
 
     # for k,v in indicator_dict.items():
     #     trend_data[k]=indicator_dict[k]

@@ -51,7 +51,8 @@ class Data():
        'LRm_3_pct_delta','tr_pct_delta','M_ovr_S',
        'sma5_ovr_sma20',
        'sma20_ovr_sma50',
-       'sma50_ovr_sma180'
+       'sma50_ovr_sma180',
+       'Z_30_pct_delta'
        ])
 
 
@@ -103,8 +104,10 @@ class Data():
 
 training_data=False
 
-# the_stock=Data(ticker='ge',start_date='2016-01-01',stop_date=None)
-the_stock=Data(ticker='spy',stop_date='2021-04-14')
+if training_data==True:
+    the_stock=Data(ticker='ge',start_date='2016-01-01',stop_date=None)
+else:
+    the_stock=Data(ticker='fb',stop_date='2021-04-14')
 
 
 
