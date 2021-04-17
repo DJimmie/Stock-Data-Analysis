@@ -156,7 +156,7 @@ def clustering(data,features):
 
     print(X[0:5])
 
-    kmeans = KMeans(n_clusters=4, random_state=0).fit(X)
+    kmeans = KMeans(n_clusters=5, random_state=0).fit(X)
 
     kmeans_results=kmeans.labels_
     
@@ -257,7 +257,16 @@ feature_list=[
     'sma20_ovr_sma50',
     'RSI_14',
     'Z_30',
-    'Z_30_pct_delta']
+    'Z_30_pct_delta',
+    'tr_pct_delta',
+    'LRm_3_pct_delta',
+    'obv_pct_delta',
+    'ROC_2']
+
+# feature_list=[
+#     'M_ovr_S',
+#     'RSI_14',
+#     'Z_30_pct_delta']
 
 
 length_of_feature_list=len(feature_list)
