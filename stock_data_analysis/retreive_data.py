@@ -82,12 +82,12 @@ class Data():
         print(self.df.head())
 
         # get the price (close) delta
-        # self.df.loc[self.df['close'].diff()<0, 'PL'] = 0
-        # self.df.loc[self.df['close'].diff()>=0, 'PL'] = 1
+        self.df.loc[self.df['close'].diff(2)<0, 'PL'] = 0
+        self.df.loc[self.df['close'].diff(2)>=0, 'PL'] = 1
 
 
-        self.df.loc[self.df['RSI_14'].diff(2)<0, 'PL'] = 0
-        self.df.loc[self.df['RSI_14'].diff(2)>=0, 'PL'] = 1
+        # self.df.loc[self.df['RSI_14'].diff(2)<0, 'PL'] = 0
+        # self.df.loc[self.df['RSI_14'].diff(2)>=0, 'PL'] = 1
 
 
 
@@ -111,7 +111,7 @@ training_data=False
 if training_data==True:
     the_stock=Data(ticker='ge',start_date='2016-01-01',stop_date=None)
 else:
-    the_stock=Data(ticker='xnet',stop_date='2021-04-16')
+    the_stock=Data(ticker='apha',stop_date='2021-04-19')
 
 
 

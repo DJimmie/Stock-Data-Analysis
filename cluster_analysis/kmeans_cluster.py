@@ -258,8 +258,7 @@ feature_list=[
     'Z_30',
     'RSI_14',
     'ROC_2',
-
-    ]
+    'LRm_3_pct_delta']
 
 # feature_list=[
 #     'M_ovr_S',

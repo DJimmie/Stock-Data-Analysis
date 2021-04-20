@@ -166,7 +166,7 @@ def trade_criteria_dataset(df):
 
     df['macd_slope']=df['MACD_12_26_9'].diff(2)/2
 
-    df['LRm_3_pct_delta']=df['LRm_3'].pct_change(periods=2)
+    df['LRm_3_pct_delta']=df['LRm_3'].pct_change(periods=1)
 
     df['tr_pct_delta']=df['TRUERANGE_1'].pct_change(periods=2)
 
