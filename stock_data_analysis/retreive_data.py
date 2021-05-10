@@ -111,7 +111,7 @@ training_data=False
 if training_data==True:
     the_stock=Data(ticker='ge',start_date='2016-01-01',stop_date=None)
 else:
-    the_stock=Data(ticker='fcx',stop_date='2021-05-05')
+    the_stock=Data(ticker='fcx',stop_date='2021-05-06')
 
 
 
