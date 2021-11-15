@@ -58,8 +58,8 @@ def the_program_folder(x):
     ini_file=f'c:/my_python_programs/{client}/{client}.ini'
 
     log_file=f'c:/my_python_programs/{client}/{client}_log.log'
-    logging.basicConfig(filename=log_file, level=logging.INFO, filemode='w', format=' %(asctime)s -%(levelname)s - %(message)s')
-    # logging.info('Start')
+    # logging.basicConfig(filename=log_file, level=logging.INFO, filemode='w', format=' %(asctime)s -%(levelname)s - %(message)s')
+    
 
     return ini_file,log_file,client
 

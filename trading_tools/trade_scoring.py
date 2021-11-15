@@ -3,6 +3,8 @@
 from dependencies import *
 import csv
 
+logger = logging.getLogger('TCC.ts')
+
 
 global trade_status_line,trend_data, baseline_scores,last_Close
 trade_status_line=dict()
@@ -16,6 +18,7 @@ last_Close=None
 
 def get_nasdaq_tickers(sector):
     """Getting a list of tickers"""
+    logger.debug('def get_nasdaq_tickers(sector)')
 
     tickers=[]
     line=0
@@ -40,6 +43,8 @@ def get_nasdaq_tickers(sector):
 def user_inputs(tradeType,ticker,**kwargs):
     """User specifies list of stocks to review and score. User also inputs the date range and the interval of the stock data.
     Inputs are stored in a dictionary."""
+
+    logger.debug('def user_inputs(tradeType,ticker,**kwargs)')
     
     my_stocks={
     'options':[ticker],
@@ -68,6 +73,8 @@ def retrieve_OHLC_data(inputs):
     Input---> list of stocks
     Output ---> dictionary with ticker symbol keys and the retrieve OHLC dataframe as values
     """
+
+    logger.debug('def retrieve_OHLC_data(inputs)')
     global stock_dict,symbol,CURRENT_DATE
     stock_dict=dict()
 
@@ -96,6 +103,9 @@ def retrieve_OHLC_data(inputs):
 def GenerateIndicators(df):
     """generate the stock indictors for the stock OHLCV data"""
 
+    logger.debug('def GenerateIndicators(df)')
+    logger.info('generate the stock indictors for the stock OHLCV data')
+
     df=trade_criteria_dataset(df)
 
     # df.resample('M').mean()
@@ -123,6 +133,8 @@ def GenerateIndicators(df):
 
 
 def trade_criteria_dataset(df):
+
+    logger.debug('def trade_criteria_dataset(df)')
 
     global last_Close
 
@@ -174,6 +186,7 @@ def trade_criteria_dataset(df):
 
 def trade_criteria(indicator_dict):
     """Run indictors thru the trade criteria"""
+    logger.debug('def trade_criteria(indicator_dict)')
 
     # MACD above MACDs
 
@@ -239,6 +252,8 @@ def trade_criteria(indicator_dict):
 
 def trend_indicators(indicator_dict):
     """Trend data. Includes slope of 3 period regression, angle and direction (increasing/decreasing)"""
+    logger.debug('def trend_indicators(indicator_dict)')
+    logger.info('Trend data. Includes slope of 3 period regression, angle and direction (increasing/decreasing)')
 
     # print(f'slope--->{indicator_dict["LRm_3"]}')
     # print(f'degrees--->{indicator_dict["LR_3"]}')
@@ -263,6 +278,8 @@ def trend_indicators(indicator_dict):
 
 def enthusiasm_score(trade_status_line):
     """Calculating a trade enthusiasm score per the criteria result in the trade_status_line"""
+    logger.debug('def enthusiasm_score(trade_status_line)')
+    logging.info('Calculating a trade enthusiasm score per the criteria result in the trade_status_line')
     sum=0
     for key, value in trade_status_line[symbol].items():
         print(key,":",value)
@@ -281,6 +298,7 @@ def enthusiasm_score(trade_status_line):
 
 
 def send_results_to_file(data,file_action='a'):
+    logger.debug('def send_results_to_file(data,file_action='a')')
 
     output_s = pprint.pformat(data)
     with open('long_2_results.txt', file_action) as file:

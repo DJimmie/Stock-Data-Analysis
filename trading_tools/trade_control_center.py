@@ -2,11 +2,27 @@
 
 
 from dependencies import *
-import trade_scoring
+
+
+# import logging
+logger = logging.getLogger('TCC')
+logger.setLevel(logging.DEBUG)
+
+# logging file handler
+f_handler = logging.FileHandler('workflow_logger.log',mode='w')
+f_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+f_handler.setFormatter(f_format)
+f_handler.setLevel(logging.DEBUG)
+
+ch=logging.StreamHandler()
+ch.setFormatter(f_format)
+ch.setLevel(logging.DEBUG)
+logger.addHandler(f_handler)
+logger.addHandler(ch)
 
 # Create utility folder and logging file
 ini_file,log_file,client=the_program_folder(os.path.basename(__file__))
-logging.info('Start')
+
 
 
 options_json_file=f'c:/my_python_programs/{client}/options.json'
@@ -38,10 +54,10 @@ class UserInterface():
     """Parent class for the UI. Instantiates the composite Window.
     User Interface with fields for entering data to the database."""
 
-    logging.info('UserInterface()')
     u=None  ##----> Making a class variable to capture the instance of ControlCenter so that other classes can then access ControlCenter's attributes and methods.
     def __init__(self):
         """Interface build."""
+        logger.debug('class UserInterface()')
         UI(None,title='MY TRADING TOOL',
         banner='MY TRADING TOOL',
         win_color='#6334D0',
@@ -55,20 +71,20 @@ class UserInterface():
 
 class ControlCenter():
     """Build the GUI and implement it's methods"""
-    logging.info('ControlCenter()')
+    
     trade_watch_date=None
     def __init__(self):
+        logger.debug('class ControlCenter()')
 
-        
         self.build_the_gui()
 
     def build_the_gui(self):
         """Build GUI frames and widgets"""
 
-        logging.info('ControlCenter()-->def build_the_gui')
+        logger.debug('def build_the_gui(self)')
         
          ## OPTIONS FRAME
-        logging.info('ControlCenter()-->def build_the_gui-->build options frame')
+        logger.info('ControlCenter()-->def build_the_gui-->build options frame')
         self.options_frame=Frames(row=1,col=0,bg='#00BFFF',relief='raised',
         banner_font='Ariel 16 bold',
         banner_text='OPTION TRADES',
@@ -123,7 +139,7 @@ class ControlCenter():
         
 
         ## STOCKS FRAME
-        logging.info('ControlCenter()-->def build_the_gui-->build Stock Frame')
+        logger.info('ControlCenter()-->def build_the_gui-->build Stock Frame')
         self.stocks_frame=Frames(row=1,col=1,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='STOCK TRADES',
@@ -155,7 +171,7 @@ class ControlCenter():
         self.stock_submit_option_trade=Buttons(self.stocks_frame.F,name='Add Stock Trade',row=6,col=0,width=20,command=None,sticky=S,pady=20)
 
         ## POSITIONS FRAME
-        logging.info('ControlCenter()-->def build_the_gui-->build Positions Frame')
+        logger.info('ControlCenter()-->def build_the_gui-->build Positions Frame')
         self.positions_frame=Frames(row=1,col=2,bg='#D2691E',relief='raised',
         banner_font='Ariel 16 bold',
         banner_text='POSITIONS',
@@ -174,7 +190,7 @@ class ControlCenter():
         self.populate_positions('options')
 
         ## STOCK WATCH FRAME
-        logging.info('ControlCenter()-->def build_the_gui-->build Stock Watch Frame')
+        logger.info('ControlCenter()-->def build_the_gui-->build Stock Watch Frame')
         self.stock_watch_frame=Frames(row=1,col=3,bg='#D2691E',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='STOCK WATCH',
@@ -186,7 +202,7 @@ class ControlCenter():
         row=1,col=0,drop_down_list=stock_list,fw=15,sticky=E+W,direction='HORZ') 
 
         self.swTicker.combo.bind("<Return>", lambda x: StockCheck(self.swTicker.combo.get()))
-        self.swTicker.combo.bind("<<ComboboxSelected>>",lambda x: StockCheck(self.swTicker.combo.get()))
+        self.swTicker.combo.bind("<<ComboboxSelected>>", lambda x:[logger.debug('ComboboxSelected--self.swTicker'),StockCheck(self.swTicker.combo.get())])
 
         self.trade_watch_date=ControlCenter.trade_watch_date=DateEntry(self.stock_watch_frame.F,font='Ariel 12 bold',highlightbackground='pink',highlightthickness=5)
         self.trade_watch_date.grid(row=1,column=2,sticky=NW)
@@ -195,7 +211,7 @@ class ControlCenter():
  
    
     def stock_calcs(self):
-        logging.info('stock_calcs')
+        logger.debug('def stock_calcs(self)')
 
         a=float(self.share_price.entry.get())
         b=int(self.num_shares.entry.get())
@@ -204,7 +220,8 @@ class ControlCenter():
         self.total_cost.entry.insert(0,c)
 
     def options_calcs(self):
-        logging.info('ControlCenter()-->def options_calcs-->bep and $100 mark calcs as user adds an option trade.')
+        logger.debug('def options_calcs(self)')
+        logger.info('ControlCenter()-->def options_calcs-->bep and $100 mark calcs as user adds an option trade.')
 
         try:
             a=float(self.strike_price.entry.get())
@@ -227,11 +244,12 @@ class ControlCenter():
 
     def options_trade_data(self):
         """Retrieves the option traded data from the GUI and adds it to the option_data dictionary."""
-        logging.info('ControlCenter()-->def options_trade_data-->User is submitting a new option trade')
+        logger.debug('def options_trade_data(self)')
+        logger.info('ControlCenter()-->def options_trade_data-->User is submitting a new option trade')
 
         header=['ticker','strike_price','option_price','contracts','purchase_date','expiration','bep','$100_profit','position','id','type']
         if not os.path.isfile(options_json_file):
-            logging.info('ControlCenter()-->def options_trade_data-->checking for options_data_dict and making it if not exist')
+            logger.info('ControlCenter()-->def options_trade_data-->checking for options_data_dict and making it if not exist')
             options_data_dict=dict()
             for i in header:
                 options_data_dict[i]=list()
@@ -241,7 +259,7 @@ class ControlCenter():
         option_data=dict()
         ticker=self.symbol.combo.get().upper()
         option_data[ticker]={}
-        logging.info('ControlCenter()-->def options_trade_data-->pulling GUI data from Options Trades & adding to option_data dict.')
+        logger.info('ControlCenter()-->def options_trade_data-->pulling GUI data from Options Trades & adding to option_data dict.')
         try:
             option_data[ticker].update({'strike_price':float(self.strike_price.entry.get())})
             option_data[ticker].update({'option_price':float(self.options_price.entry.get())})
@@ -260,13 +278,13 @@ class ControlCenter():
         option_id=self.build_trade_id('options',option_data)
         option_data[ticker].update({'id':option_id})
 
-        print(ticker)
+        logger.debug(ticker)
         print(f'****************{option_data[ticker]}')
 
         self.option_data=option_data
 
         # Inspect pulled data. Make sure no blanks.
-        logging.info('ControlCenter()-->def options_trade_data-->Inspect pulled data. Make sure no blanks')
+        logger.info('ControlCenter()-->def options_trade_data-->Inspect pulled data. Make sure no blanks')
         if self.symbol.combo.get()=='':
             messagebox.showwarning('Missing Stock Symbol','Must stock symbol in the symbol field !!')
             return None
@@ -278,7 +296,7 @@ class ControlCenter():
                 return None
 
 
-        logging.info('ControlCenter()-->def options_trade_data-->adding new options trade to the options dictionary')
+        logger.info('ControlCenter()-->def options_trade_data-->adding new options trade to the options dictionary')
         a=self.load_json_file('options')
 
         print(a)
@@ -300,7 +318,8 @@ class ControlCenter():
 
     @staticmethod
     def build_trade_id(a,data):
-        logging.info('ControlCenter()-->def build_trade_id-->assemble the options trade id')
+        logger.debug('def build_trade_id(a,data)')
+        logger.info('ControlCenter()-->def build_trade_id-->assemble the options trade id')
         
         if a=='options':
             key, val = next(iter(data.items()))
@@ -322,13 +341,14 @@ class ControlCenter():
 
     @staticmethod
     def load_json_file(a):
-        logging.info('ControlCenter()-->def load_json_file')
+        logger.debug('def load_json_file(a)')
+        logger.info('ControlCenter()-->def load_json_file')
         if a=='options':
             b=options_json_file
-            logging.info('ControlCenter()-->def load_json_file-->retrieving options json file')
+            logger.info('ControlCenter()-->def load_json_file-->retrieving options json file')
         elif (a=='stocks'):
             b=stocks_json_file
-            logging.info('ControlCenter()-->def load_json_file-->retrieving stocks json file')
+            logger.info('ControlCenter()-->def load_json_file-->retrieving stocks json file')
 
         with open(b, "r") as read_file:
             data = json.load(read_file)
@@ -337,7 +357,8 @@ class ControlCenter():
 
     @staticmethod
     def dump_to_json_file(a,data):
-        logging.info('ControlCenter()-->def dump_to_json_file')
+        logger.debug('def dump_to_json_file(a,data)')
+        logger.info('ControlCenter()-->def dump_to_json_file')
         
         if a=='options':
             b=options_json_file
@@ -348,7 +369,8 @@ class ControlCenter():
             json.dump(data, write_file)
 
     def populate_positions(self,a):
-        logging.info('ControlCenter()-->def populate_positions-->get "Open" positions for options from "id" key')
+        logger.debug('def populate_positions(self,a)')
+        logger.info('ControlCenter()-->def populate_positions-->get "Open" positions for options from "id" key')
         data=self.load_json_file(a)
 
         # getting indexes of Open positions
@@ -360,7 +382,7 @@ class ControlCenter():
         print(index_list)
 
         open_positions=[data['id'][x] for x in index_list]
-        print(open_positions)
+        logger.debug(f'open positions: {open_positions}')
 
         self.option_positions.list_box.delete(0,END)
         for c,k in enumerate(open_positions):
@@ -370,9 +392,10 @@ class ControlCenter():
 
 class TradeProgressWin():
     """Options trade info displayed on a toplevel window"""
-    logging.info('TradeProgressWin()')
-
+    
     def __init__(self,tradeType,id):
+        logger.debug('class TradeProgressWin()')
+
         self.tradeType=tradeType
         self.id=id
         self.data=ControlCenter.load_json_file(self.tradeType) ##--->pulling the json file
@@ -401,7 +424,8 @@ class TradeProgressWin():
 
     def extract_trade_data(self):
         """extracting instance of trade data from the json file"""
-        logging.info('TradeProgressWin()-->def extract_trade_data')
+        logger.debug('def extract_trade_data(self)')
+        logger.info('TradeProgressWin()-->def extract_trade_data')
 
         # search data['id'] for the provided id value and get the list index
         for i in self.data['id']:
@@ -422,7 +446,8 @@ class TradeProgressWin():
         return d
 
     def build_gui(self):
-        logging.info('TradeProgressWin()-->def build_gui')
+        logger.debug('def build_gui(self)')
+        logger.info('TradeProgressWin()-->def build_gui')
         FONT_SIZE=16
         self.ticker=Label(
             master=self.top,
@@ -606,8 +631,8 @@ class TradeProgressWin():
 
 
     def close_out_option(self):
-        logging.info('TradeProgressWin()-->def close_out_option')
-        
+        logger.debug('def close_out_option(self)')
+        logger.info('TradeProgressWin()-->def close_out_option')
         
         #get and change the self.data['positions'] for the self.index
 
@@ -627,14 +652,15 @@ class TradeProgressWin():
 
     def populate_positions(self):
         """Resets the positions list box after removing Close out options"""
-        logging.info('TradeProgressWin()-->def populate_positions-->Resets the positions list box after removing Close out options')
+        logger.debug('def populate_positions(self)')
+        logger.info('TradeProgressWin()-->def populate_positions-->Resets the positions list box after removing Close out options')
         index_list=[]
         for c,i in enumerate(self.data['position']):
             if i=='Open':
                 index_list.append(c)
 
         open_positions=[self.data['id'][x] for x in index_list]
-        print(open_positions)
+        logger.debug(f'open positions: {open_positions}')
 
         UserInterface.u.option_positions.list_box.delete(0,END)
 
@@ -645,7 +671,8 @@ class TradeProgressWin():
 
 
     def populate_the_gui(self):
-        logging.info('TradeProgressWin()-->def populate_the_gui')
+        logger.debug('def populate_the_gui(self)')
+        logger.info('TradeProgressWin()-->def populate_the_gui')
         
         self.ticker['text']=self.extracted_data['id']
         self.stock_price.insert(0,round(self.last_stock_price,2))
@@ -658,7 +685,7 @@ class TradeProgressWin():
         self.one_hundred_profit.insert(0,self.extracted_data['$100_profit'])
 
         # 
-        logging.info('TradeProgressWin()-->def populate_the_gui-->setting conditions for price field colors')
+        logger.info('TradeProgressWin()-->def populate_the_gui-->setting conditions for price field colors')
 
         if self.extracted_data['type']=='CALLS':
         
@@ -732,6 +759,7 @@ class TradeProgressWin():
         self.score()
 
     def score(self):
+        logger.debug('def score(self)')
 
         self.score_frame=Frames(row=11,col=0,host=self.top,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
@@ -772,8 +800,10 @@ class TradeProgressWin():
 
 class StockCheck():
     """Retrieve trade score for selected stock"""
-    logging.info('StockCheck(): Retrieve trade score for selected stock')
+    
     def __init__(self,ticker):
+        logger.debug('class StockCheck()')
+        logger.info('StockCheck(): Retrieve trade score for selected stock')
         self.tradeType='stocks'
         self.ticker=ticker.upper()
         
@@ -799,7 +829,8 @@ class StockCheck():
         self.trend_indications()
 
     def build_gui(self):
-        logging.info('StockCheck()-->def build_gui')
+        logger.debug('def build_gui(self)')
+        logger.info('StockCheck()-->def build_gui')
         FONT_SIZE=16
         self.ticker_label=Label(
             master=self.top,
@@ -837,7 +868,7 @@ class StockCheck():
         self.day_of_trade.grid(row=0,column=1,columnspan=1)
 
     def score(self):
-        logging.info('StockCheck()-->def build_gui')
+        logger.debug('def score(self)')
 
         self.score_frame=Frames(row=2,col=0,host=self.top,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
@@ -876,7 +907,7 @@ class StockCheck():
         self.trade_score_label.grid(row=0,column=1,sticky=NW)
 
     def trend_indications(self):
-        logging.info('StockCheck()-->def build_gui')
+        logger.debug('def trend_indications(self)')
         self.trend_frame=Frames(row=2,col=1,host=self.top,bg='#808000',relief='sunken',
         banner_font='Ariel 16 bold',
         banner_text='TREND SCORE',
@@ -900,12 +931,8 @@ class StockCheck():
 
 
 
+# MAIN----MAIN
+if __name__ == "__main__":
 
-
-
-
-
-
-
-
-UserInterface()
+    logger.info('Program Start')
+    UserInterface()
